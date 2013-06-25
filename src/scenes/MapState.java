@@ -1,196 +1,93 @@
 package scenes;
 
+import java.awt.Point;
 import java.util.ArrayList;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.state.GameState;
+import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
-public class MapState implements GameState {
+import enemies.Enemy;
+import enemies.TestEnemy;
+
+public class MapState extends BasicGameState {
+	public static ArrayList<TiledMap> maps = new ArrayList<TiledMap>();
 
 	int stateID = -1;
 	private TiledMap currMap;
+	public ArrayList<Enemy> monsters = new ArrayList<Enemy>();
+	public ArrayList<Point> waypoints = new ArrayList<Point>();
 	
 	public MapState(int id) {
-		// TODO Auto-generated constructor stub
 		stateID = id;
 	}
-
-	@Override
-	public void mouseClicked(int button, int x, int y, int clickCount) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mousePressed(int button, int x, int y) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseReleased(int button, int x, int y) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseWheelMoved(int change) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void inputEnded() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void inputStarted() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isAcceptingInput() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setInput(Input input) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void keyPressed(int key, char c) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void keyReleased(int key, char c) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerButtonPressed(int controller, int button) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerButtonReleased(int controller, int button) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerDownPressed(int controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerDownReleased(int controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerLeftPressed(int controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerLeftReleased(int controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerRightPressed(int controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerRightReleased(int controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerUpPressed(int controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controllerUpReleased(int controller) {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 	@Override
 	public void enter(GameContainer container, StateBasedGame game)
 			throws SlickException {
-		// TODO Auto-generated method stub
-
+		currMap = maps.get(0);
+		sendEnemy();
 	}
 
 	@Override
 	public int getID() {
-		// TODO Auto-generated method stub
 		return stateID;
 	}
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
-		// TODO Auto-generated method stub
-		
+		try {
+			maps.add(new TiledMap("src/maps/levelOne/levelOne.tmx") );
+			
+			//Move to Maps later
+			waypoints.add(new Point(5*32, 11*32));
+			waypoints.add(new Point(5*32, 15*32));
+			waypoints.add(new Point(21*32, 15*32));
+			waypoints.add(new Point(21*32, 6*32));
+			waypoints.add(new Point(26*32, 6*32));
+			
+		} catch (SlickException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void leave(GameContainer container, StateBasedGame game)
 			throws SlickException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g)
 			throws SlickException {
-		// TODO Auto-generated method stub
-
+		currMap.render(0,0);
+		
+		for (Enemy e : monsters ) {
+			e.render(g);
+		}
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta)
 			throws SlickException {
-		// TODO Auto-generated method stub
-
+		for (Enemy e : monsters ) {
+			if ( ( (int) e.pos[0] == (int) e.destination.x ) && ( (int) e.pos[1] == (int) e.destination.y ) ) {
+				//Reached waypoint, new waypoint
+				e.getNextDest();
+				e.getDirection();
+			}
+			e.pos[0] += e.dir[0]*e.walkSpeed;
+			e.pos[1] += e.dir[1]*e.walkSpeed;
+		}
+	}
+	
+	public void sendEnemy() {
+		double[] start = {0*32, 11*32};
+		monsters.add(new TestEnemy(start, waypoints ) );
 	}
 
 }

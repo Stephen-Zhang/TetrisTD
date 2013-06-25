@@ -10,9 +10,9 @@ import org.newdawn.slick.tiled.TiledMap;
 
 public class MainGame extends StateBasedGame {
 
-	public final static int GAME_WIDTH = 768;
-	public final static int GAME_HEIGHT = 1024;
-	public static ArrayList<TiledMap> maps = new ArrayList<TiledMap>();
+	public final static int GAME_WIDTH = 1024;
+	public final static int GAME_HEIGHT = 768;
+	//public ArrayList<enemyWaves> waves = new ArrayList<enemyWaves>();	
 	
 	public MainGame() {
 		super("Codename TTD");
@@ -29,7 +29,8 @@ public class MainGame extends StateBasedGame {
 			app.setDisplayMode(GAME_WIDTH, GAME_HEIGHT, false);
 			app.setTargetFrameRate(60);
 			app.setShowFPS(true);
-
+			
+			app.start();
 		}
 		catch (SlickException e) {
 				e.printStackTrace();
