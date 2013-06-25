@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.Shape;
 
 public abstract class Enemy {
 	public double maxHealth;
@@ -15,7 +17,9 @@ public abstract class Enemy {
 	public double walkSpeed = 1;
 //	public Animation currAnimation;
 	public Image sprite;
-	
+
+
+//	public ArrayList<Tower> hittingT = new ArrayList<Tower>();
 	public boolean alive = true;
 	public int bounty;
 	
@@ -24,7 +28,6 @@ public abstract class Enemy {
 	public void getNextDest() {
 		if (waypoints.size() != 0) {
 			destination = waypoints.remove(0);
-			System.out.println(destination);
 		} else {
 			//Take a life away. once its implemented. Means it hit the end of its map
 			alive = false;
@@ -41,8 +44,19 @@ public abstract class Enemy {
 		double distance = destination.distance(pos[0], pos[1]);
 		dir[0] = (destination.x - pos[0])/distance;
 		dir[1] = (destination.y - pos[1])/distance;
-		System.out.println("xDir: "+dir[0]);
-		System.out.println("yDir: "+dir[1]);
+	}
+	
+	public void changeTargets() {
+/*
+  		for (Tower t: hittingT) {
+ 
+			t.loseTarget();
+		}
+*/
+	}
+	
+	public Shape getHitbox() {
+		return new Rectangle(Float.parseFloat(Double.toString(pos[0])), Float.parseFloat(Double.toString(pos[1])), 32f, 32f);
 	}
 
 	public void render(Graphics g) {

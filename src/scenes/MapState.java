@@ -3,6 +3,7 @@ package scenes;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
@@ -10,6 +11,8 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
+import towers.TestTower;
+import towers.Tower;
 import enemies.Enemy;
 import enemies.TestEnemy;
 
@@ -20,6 +23,7 @@ public class MapState extends BasicGameState {
 	private TiledMap currMap;
 	public ArrayList<Enemy> monsters = new ArrayList<Enemy>();
 	public ArrayList<Point> waypoints = new ArrayList<Point>();
+	public ArrayList<Tower> towers = new ArrayList<Tower>();
 	
 	public MapState(int id) {
 		stateID = id;
@@ -30,6 +34,9 @@ public class MapState extends BasicGameState {
 			throws SlickException {
 		currMap = maps.get(0);
 		sendEnemy();
+		
+		double[] tCent = {6*32, 14*32};
+		towers.add(new TestTower(tCent));
 	}
 
 	@Override
@@ -68,6 +75,14 @@ public class MapState extends BasicGameState {
 		
 		for (Enemy e : monsters ) {
 			e.render(g);
+			g.setColor(new Color (255, 0, 0));
+			g.draw(e.getHitbox());
+		}
+		
+		for (Tower t : towers ) {
+			t.render(g);
+			g.setColor(new Color (0, 255, 0) );
+			g.draw(t.realShape);
 		}
 	}
 
