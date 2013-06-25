@@ -8,6 +8,8 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 
+import towers.Tower;
+
 public abstract class Enemy {
 	public double maxHealth;
 	public double currHealth;
@@ -19,7 +21,7 @@ public abstract class Enemy {
 	public Image sprite;
 
 
-//	public ArrayList<Tower> hittingT = new ArrayList<Tower>();
+	public ArrayList<Tower> hittingT = new ArrayList<Tower>();
 	public boolean alive = true;
 	public int bounty;
 	
@@ -46,15 +48,6 @@ public abstract class Enemy {
 		dir[1] = (destination.y - pos[1])/distance;
 	}
 	
-	public void changeTargets() {
-/*
-  		for (Tower t: hittingT) {
- 
-			t.loseTarget();
-		}
-*/
-	}
-	
 	public Shape getHitbox() {
 		return new Rectangle(Float.parseFloat(Double.toString(pos[0])), Float.parseFloat(Double.toString(pos[1])), 32f, 32f);
 	}
@@ -64,4 +57,20 @@ public abstract class Enemy {
 		sprite.draw((int)pos[0],(int)pos[1]);
 	}
 
+	public int distToGoal() {
+		int dist = 0;
+		
+		//Waypoints added
+		for (int i = waypoints.size()-1; i > 0; i--) {
+			dist += waypoints.get(i).distanceSq(waypoints.get(i-1));
+		}
+		
+		//closest waypoint to currDestination
+		dist += waypoints.get(0).distanceSq(destination);
+		
+		//currDestination to currPos
+		dist += destination.distanceSq(pos[0], pos[1]);
+		
+		return dist;
+	}
 }

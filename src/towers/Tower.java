@@ -1,26 +1,33 @@
 package towers;
 
 import java.awt.Point;
-import java.util.ArrayList;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.geom.Circle;
-import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.ShapeRenderer;
 
+import projectiles.Projectile;
+import enemies.Enemy;
+
 public abstract class Tower {
 	public double fireRate;
-	public double damage;
+	
+	public boolean canFire;
+	public int cooldown;
 	
 	public double[] center = new double[2];
 	
 	
 	public int cost;
-	public Circle rangeInd;
+	
+	public Point[] range;
+	public Shape rangeInd;
+	
 	public Point[] shape;
 	public Shape realShape;
+	
+	public Enemy target;
 	
 	public Image sprite;
 	
@@ -29,5 +36,6 @@ public abstract class Tower {
 		ShapeRenderer.texture(realShape, sprite);
 	}
 	
+	public abstract Projectile fireBullet();
 	
 }
