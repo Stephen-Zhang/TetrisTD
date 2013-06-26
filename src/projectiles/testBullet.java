@@ -8,7 +8,7 @@ import enemies.Enemy;
 
 public class testBullet extends Projectile { 
 	public testBullet(Enemy t, double[] startingLoc) {
-		speed = 2;
+		speed = 4;
 		damage = 5;
 		target = t;
 
@@ -19,10 +19,10 @@ public class testBullet extends Projectile {
 			e.printStackTrace();
 		}
 		//Bullets also spawn from center of towers
-		pos[0] = startingLoc[0]+16;
-		pos[1] = startingLoc[1]+16;
+		pos[0] = startingLoc[0]+12;
+		pos[1] = startingLoc[1]+12;
 		
-		point = new Circle(Float.parseFloat(Double.toString(pos[0])), Float.parseFloat(Double.toString(pos[1])), 1);
 	}
+	
 	
 }

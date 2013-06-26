@@ -14,6 +14,8 @@ public abstract class Enemy {
 	public double maxHealth;
 	public double currHealth;
 	public double[] pos = new double[2];
+	public double[] dir = new double[2];
+
 	public ArrayList<Point> waypoints;
 	public Point destination;
 	public double walkSpeed = 1;
@@ -25,7 +27,6 @@ public abstract class Enemy {
 	public boolean alive = true;
 	public int bounty;
 	
-	public double[] dir = new double[2];
 	
 	public void getNextDest() {
 		if (waypoints.size() != 0) {
@@ -50,6 +51,10 @@ public abstract class Enemy {
 	
 	public Shape getHitbox() {
 		return new Rectangle(Float.parseFloat(Double.toString(pos[0])), Float.parseFloat(Double.toString(pos[1])), 32f, 32f);
+	}
+	
+	public Shape getBulletBox() {
+		return new Rectangle(Float.parseFloat(Double.toString(pos[0]+14)), Float.parseFloat(Double.toString(pos[1]+14)), 4f, 4f);
 	}
 
 	public void render(Graphics g) {

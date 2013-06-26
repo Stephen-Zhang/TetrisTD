@@ -4,6 +4,9 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import levels.Level;
+import levels.LevelOne;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -16,13 +19,14 @@ import projectiles.Projectile;
 import towers.TestTower;
 import towers.Tower;
 import enemies.Enemy;
-import enemies.TestEnemy;
 
 public class MapState extends BasicGameState {
 	public static ArrayList<TiledMap> maps = new ArrayList<TiledMap>();
 
 	int stateID = -1;
 	private TiledMap currMap;
+	public Level currLevel;
+	
 	public ArrayList<Enemy> monsters = new ArrayList<Enemy>();
 	public ArrayList<Point> waypoints = new ArrayList<Point>();
 	public ArrayList<Tower> towers = new ArrayList<Tower>();
@@ -33,6 +37,7 @@ public class MapState extends BasicGameState {
 
 	public ArrayList<Projectile> addB = new ArrayList<Projectile>();
 	public HashMap<Enemy, ArrayList<Tower>> addTtoE = new HashMap<Enemy, ArrayList<Tower>>();
+	public ArrayList<Enemy> addE = new ArrayList<Enemy>();
 
 	public MapState(int id) {
 		stateID = id;
@@ -42,7 +47,8 @@ public class MapState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game)
 			throws SlickException {
 		currMap = maps.get(0);
-		sendEnemy();
+
+		currLevel = new LevelOne();
 		
 		double[] tCent = {6*32, 14*32};
 		towers.add(new TestTower(tCent));
@@ -60,11 +66,6 @@ public class MapState extends BasicGameState {
 			maps.add(new TiledMap("src/maps/levelOne/levelOne.tmx") );
 			
 			//Move to Maps later
-			waypoints.add(new Point(5*32, 11*32));
-			waypoints.add(new Point(5*32, 15*32));
-			waypoints.add(new Point(21*32, 15*32));
-			waypoints.add(new Point(21*32, 6*32));
-			waypoints.add(new Point(26*32, 6*32));
 			
 		} catch (SlickException e) {
 			e.printStackTrace();
@@ -83,6 +84,7 @@ public class MapState extends BasicGameState {
 		currMap.render(0,0);
 		
 		for (Enemy e : monsters ) {
+			System.out.println(monsters.size());
 			e.render(g);
 			g.setColor(new Color (255, 0, 0));
 			g.draw(e.getHitbox());
@@ -102,6 +104,14 @@ public class MapState extends BasicGameState {
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta)
 			throws SlickException {
+		currLevel.waveTimer += delta;
+		if (currLevel.currWave.checkNextEnemy(currLevel.waveTimer)) {
+			addE.add(currLevel.currWave.getNextEnemy());
+		}
+		if (currLevel.checkSendWave()) {
+			currLevel.getNextWave();
+		}
+		
 		for (Enemy e : monsters ) {
 			if ( ( (int) e.pos[0] == (int) e.destination.x ) && ( (int) e.pos[1] == (int) e.destination.y ) ) {
 				//Reached waypoint, new waypoint
@@ -201,7 +211,7 @@ public class MapState extends BasicGameState {
 			
 			//HP STUFF GOES HERE
 			for ( Projectile p : bullets ) {
-				if (p.point.intersects(e.getHitbox()) ) {
+				if (p.getHitbox().intersects(e.getBulletBox()) ) {
 					//Bullet hit! drain some HP
 					e.currHealth -= p.damage;
 					//Remove p from existence. Not implemented yet
@@ -233,8 +243,6 @@ public class MapState extends BasicGameState {
 			p.pos[1] += p.dir[1]*p.speed;
 		}
 		
-		//Cleanup
-
 		//Remove all bullets that need to be removed
 		for (Projectile p : removeB) {
 			bullets.remove(p);
@@ -252,19 +260,23 @@ public class MapState extends BasicGameState {
 			bullets.add(p);
 		}
 		
+		for (Enemy e : addE) {
+			monsters.add(e);
+		}
+		
 		//Add all towers that are hitting enemy
 		for (Enemy e : addTtoE.keySet()) {
 			for (Tower t : addTtoE.get(e)) {
 				e.hittingT.add(t);
-				
 			}
 		}
 		
-	}
-	
-	public void sendEnemy() {
-		double[] start = {0*32, 11*32};
-		monsters.add(new TestEnemy(start, waypoints ) );
+		addB.clear();
+		addE.clear();
+		addTtoE.clear();
+		remTfromE.clear();
+		removeB.clear();
+		
 	}
 
 }
