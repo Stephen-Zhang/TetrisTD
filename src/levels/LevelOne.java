@@ -48,13 +48,13 @@ public class LevelOne extends Level {
 		};
 		
 		ArrayList<Integer> tTwo = new ArrayList<Integer>();
-		tTwo.add(new Integer(4000));
-		tTwo.add(new Integer(4500));
-		tTwo.add(new Integer(5000));
-		tTwo.add(new Integer(5200));
-		tTwo.add(new Integer(5400));
-		tTwo.add(new Integer(5600));
-		tTwo.add(new Integer(6000));
+		tTwo.add(new Integer(0));
+		tTwo.add(new Integer(500));
+		tTwo.add(new Integer(1000));
+		tTwo.add(new Integer(1200));
+		tTwo.add(new Integer(1400));
+		tTwo.add(new Integer(1600));
+		tTwo.add(new Integer(2000));
 		
 		Wave wOne = new Wave(1, wOneEnemies, tOne, 0);
 		

@@ -32,7 +32,7 @@ public class Wave {
 		if (timing.size() == 0) {
 			return false;
 		}
-		if (timer >= timing.get(0)) {
+		if (timer >= timing.get(0)+startTime) {
 			return true;
 		}
 		return false;

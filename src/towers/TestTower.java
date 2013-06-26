@@ -14,7 +14,7 @@ import enemies.Enemy;
 public class TestTower extends Tower {
 	
 	public TestTower(double[] cent) {
-		fireRate = 1;
+		fireRate = .25;
 		
 		canFire = true;
 		cooldown = 0;
