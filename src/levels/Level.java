@@ -19,7 +19,7 @@ public abstract class Level {
 	}
 	
 	public boolean checkSendWave() {
-		if (waveTimer > currWave.startTime && waves.size() > 0) {
+		if (waves.size() > 0 && waveTimer > waves.get(0).startTime) {
 			return true;
 		}
 		return false;

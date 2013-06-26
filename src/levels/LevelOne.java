@@ -18,28 +18,49 @@ public class LevelOne extends Level {
 		waypts.add(new Point(21*32, 6*32));
 		waypts.add(new Point(26*32, 6*32));
 		
-		Enemy e1 = new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts));
-		Enemy e2 = new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts));
-		
 		Enemy[] wOneEnemies = {
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
 				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
 				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
 				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
 				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts))
 		};
 		
-		ArrayList<Integer> timings = new ArrayList<Integer>();
-		timings.add(new Integer(0));
-		timings.add(new Integer(500));
-		timings.add(new Integer(1000));
-		timings.add(new Integer(1200));
-		/*
-		timings.add(new Integer(1400));
-		timings.add(new Integer(1600));
-		timings.add(new Integer(2000));
-		*/
-		Wave wOne = new Wave(1, wOneEnemies, timings, 0);
+		ArrayList<Integer> tOne = new ArrayList<Integer>();
+		tOne.add(new Integer(0));
+		tOne.add(new Integer(500));
+		tOne.add(new Integer(1000));
+		tOne.add(new Integer(1200));
+		tOne.add(new Integer(1400));
+		tOne.add(new Integer(1600));
+		tOne.add(new Integer(2000));
+
+		Enemy[] wTwoEnemies = {
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts)),
+				new TestEnemy(startLoc.clone(), new ArrayList<Point>(waypts))
+		};
+		
+		ArrayList<Integer> tTwo = new ArrayList<Integer>();
+		tTwo.add(new Integer(4000));
+		tTwo.add(new Integer(4500));
+		tTwo.add(new Integer(5000));
+		tTwo.add(new Integer(5200));
+		tTwo.add(new Integer(5400));
+		tTwo.add(new Integer(5600));
+		tTwo.add(new Integer(6000));
+		
+		Wave wOne = new Wave(1, wOneEnemies, tOne, 0);
+		
+		Wave wTwo = new Wave(1, wTwoEnemies, tTwo, 4000);
 		
 		currWave = wOne;
+		waves.add(wTwo);
 	}
 }
