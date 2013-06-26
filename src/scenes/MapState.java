@@ -84,7 +84,6 @@ public class MapState extends BasicGameState {
 		currMap.render(0,0);
 		
 		for (Enemy e : monsters ) {
-			System.out.println(monsters.size());
 			e.render(g);
 			g.setColor(new Color (255, 0, 0));
 			g.draw(e.getHitbox());
