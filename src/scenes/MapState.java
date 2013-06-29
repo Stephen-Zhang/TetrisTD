@@ -86,11 +86,6 @@ public class MapState extends BasicGameState {
 		
 		for (Enemy e : monsters ) {
 			e.render(g);
-			g.setColor(new Color (255, 0, 0));
-			g.draw(e.getHitbox());
-			
-			//Render HP Bar!
-
 		}
 		
 		for (Tower t : towers ) {
@@ -119,11 +114,16 @@ public class MapState extends BasicGameState {
 			if ( ( (int) e.pos[0] == (int) e.destination.x ) && ( (int) e.pos[1] == (int) e.destination.y ) ) {
 				//Reached waypoint, new waypoint
 				e.getNextDest();
-				e.getDirection();
 			}
-			e.pos[0] += e.dir[0]*e.walkSpeed;
-			e.pos[1] += e.dir[1]*e.walkSpeed;
-
+			if (e.destination == null) {
+				//REMOVE LIVES! Implement Player Object now =\
+				removeE.add(e);
+			} else {
+				e.getDirection();
+				e.pos[0] += e.dir[0]*e.walkSpeed;
+				e.pos[1] += e.dir[1]*e.walkSpeed;
+			}
+			
 			//Leaving range of towers
 			for (Tower t : e.hittingT) {
 				if (!t.rangeInd.intersects(e.getHitbox()) ) {

@@ -33,9 +33,9 @@ public abstract class Enemy {
 		if (waypoints.size() != 0) {
 			destination = waypoints.remove(0);
 		} else {
+			destination = null;
 			//Take a life away. once its implemented. Means it hit the end of its map
 			alive = false;
-			bounty = 0;
 			//TODO take away lives from player
 		}
 	}
