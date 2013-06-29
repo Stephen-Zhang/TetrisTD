@@ -15,6 +15,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
+import player.Player;
 import projectiles.Projectile;
 import towers.TestTower;
 import towers.Tower;
@@ -22,10 +23,12 @@ import enemies.Enemy;
 
 public class MapState extends BasicGameState {
 	public static ArrayList<TiledMap> maps = new ArrayList<TiledMap>();
-
+	
 	int stateID = -1;
 	private TiledMap currMap;
 	public Level currLevel;
+
+	public Player player;
 	
 	public ArrayList<Enemy> monsters = new ArrayList<Enemy>();
 	public ArrayList<Point> waypoints = new ArrayList<Point>();
@@ -49,6 +52,8 @@ public class MapState extends BasicGameState {
 			throws SlickException {
 		currMap = maps.get(0);
 
+		player = new Player(20, 100);
+		
 		currLevel = new LevelOne();
 		
 		double[] tCent = {6*32, 14*32};
@@ -84,6 +89,10 @@ public class MapState extends BasicGameState {
 			throws SlickException {
 		currMap.render(0,0);
 		
+		g.setColor(new Color(255,255,255));
+		g.drawString("Gold: "+player.gold, 900, 200);
+		g.drawString("Lives: "+player.lives, 900, 225);
+		
 		for (Enemy e : monsters ) {
 			e.render(g);
 		}
@@ -116,7 +125,7 @@ public class MapState extends BasicGameState {
 				e.getNextDest();
 			}
 			if (e.destination == null) {
-				//REMOVE LIVES! Implement Player Object now =\
+				player.lives--;
 				removeE.add(e);
 			} else {
 				e.getDirection();
@@ -212,16 +221,17 @@ public class MapState extends BasicGameState {
 				}
 			}
 			
-			//HP STUFF GOES HERE
 			for ( Projectile p : bullets ) {
 				if (p.getHitbox().intersects(e.getBulletBox()) ) {
 					//Bullet hit! drain some HP
 					e.currHealth -= p.damage;
-					if (e.currHealth <= 0) {
+					if (e.currHealth <= 0) {						
 						removeE.add(e);
+						for (Tower t : e.hittingT ) {
+							t.target = null;
+						}
+						player.gold += e.bounty;
 					}
-					//Remove p from existence. Not implemented yet
-					//TODO REMOVE BULLETS AFTER BEING HIT
 					removeB.add(p);
 				}
 			}
@@ -243,15 +253,14 @@ public class MapState extends BasicGameState {
 		
 		//Dealing with bullet Travel
 		for (Projectile p : bullets) {
+			if (removeE.contains(p.target)) {
+				removeB.add(p);
+				continue;
+			}
 			//Update direction and movement
 			p.getDirection();
 			p.pos[0] += p.dir[0]*p.speed;
 			p.pos[1] += p.dir[1]*p.speed;
-			
-			//if target has already been slain, fizzle the projectile
-			if (removeE.contains(p.target)) {
-				removeB.add(p);
-			}
 		}
 		
 		//Remove all bullets that need to be removed

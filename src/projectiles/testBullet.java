@@ -8,8 +8,8 @@ import enemies.Enemy;
 
 public class testBullet extends Projectile { 
 	public testBullet(Enemy t, double[] startingLoc) {
-		speed = 4;
-		damage = 5;
+		speed = 8;
+		damage = 10;
 		target = t;
 
 		try {

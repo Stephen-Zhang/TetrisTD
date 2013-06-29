@@ -23,7 +23,6 @@ public abstract class Enemy {
 //	public Animation currAnimation;
 	public Image sprite;
 
-
 	public ArrayList<Tower> hittingT = new ArrayList<Tower>();
 	public boolean alive = true;
 	public int bounty;
@@ -34,9 +33,6 @@ public abstract class Enemy {
 			destination = waypoints.remove(0);
 		} else {
 			destination = null;
-			//Take a life away. once its implemented. Means it hit the end of its map
-			alive = false;
-			//TODO take away lives from player
 		}
 	}
 	

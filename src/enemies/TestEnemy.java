@@ -12,6 +12,7 @@ public class TestEnemy extends Enemy {
 		this.maxHealth = 20;
 		this.currHealth = 20;
 		this.pos = startingLoc;
+		this.bounty = 10;
 		setWaypoints(waypts);
 		getNextDest();
 		getDirection();
