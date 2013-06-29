@@ -3,6 +3,7 @@ package enemies;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
@@ -59,6 +60,7 @@ public abstract class Enemy {
 
 	public void render(Graphics g) {
 		// TODO Auto-generated method stub
+		renderHealthBar(g);
 		sprite.draw((int)pos[0],(int)pos[1]);
 	}
 
@@ -77,5 +79,18 @@ public abstract class Enemy {
 		dist += destination.distanceSq(pos[0], pos[1]);
 		
 		return dist;
+	}
+
+	public void renderHealthBar(Graphics g) {
+        int offset = -5;
+        double x = pos[0];
+        double  y = pos[1] + offset;
+        int width = 32;
+        int height = 5;
+        double healthRemaining = width * currHealth / maxHealth;
+        g.setColor(new Color(255, 0, 0));
+        g.fillRect(Float.parseFloat(Double.toString(x)), Float.parseFloat(Double.toString(y)), (float) (width), height);
+        g.setColor(new Color(0, 255, 0));
+        g.fillRect(Float.parseFloat(Double.toString(x)), Float.parseFloat(Double.toString(y)), (float) healthRemaining, height);
 	}
 }

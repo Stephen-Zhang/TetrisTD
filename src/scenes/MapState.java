@@ -33,6 +33,7 @@ public class MapState extends BasicGameState {
 	public ArrayList<Projectile> bullets = new ArrayList<Projectile>();
 	
 	public ArrayList<Projectile> removeB = new ArrayList<Projectile>();
+	public ArrayList<Enemy> removeE = new ArrayList<Enemy>();
 	public HashMap<Enemy, ArrayList<Tower>> remTfromE = new HashMap<Enemy, ArrayList<Tower>>();
 
 	public ArrayList<Projectile> addB = new ArrayList<Projectile>();
@@ -87,6 +88,9 @@ public class MapState extends BasicGameState {
 			e.render(g);
 			g.setColor(new Color (255, 0, 0));
 			g.draw(e.getHitbox());
+			
+			//Render HP Bar!
+
 		}
 		
 		for (Tower t : towers ) {
@@ -213,6 +217,9 @@ public class MapState extends BasicGameState {
 				if (p.getHitbox().intersects(e.getBulletBox()) ) {
 					//Bullet hit! drain some HP
 					e.currHealth -= p.damage;
+					if (e.currHealth <= 0) {
+						removeE.add(e);
+					}
 					//Remove p from existence. Not implemented yet
 					//TODO REMOVE BULLETS AFTER BEING HIT
 					removeB.add(p);
@@ -240,6 +247,11 @@ public class MapState extends BasicGameState {
 			p.getDirection();
 			p.pos[0] += p.dir[0]*p.speed;
 			p.pos[1] += p.dir[1]*p.speed;
+			
+			//if target has already been slain, fizzle the projectile
+			if (removeE.contains(p.target)) {
+				removeB.add(p);
+			}
 		}
 		
 		//Remove all bullets that need to be removed
@@ -247,6 +259,10 @@ public class MapState extends BasicGameState {
 			bullets.remove(p);
 		}
 		
+		for (Enemy e : removeE) {
+			monsters.remove(e);
+		}
+
 		//Remove all towers that have left range on enemy
 		for (Enemy e : remTfromE.keySet()) {
 			for (Tower t : remTfromE.get(e)) {
@@ -275,6 +291,7 @@ public class MapState extends BasicGameState {
 		addTtoE.clear();
 		remTfromE.clear();
 		removeB.clear();
+		removeE.clear();
 		
 	}
 
