@@ -2,14 +2,13 @@ package projectiles;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.Circle;
 
 import enemies.Enemy;
 
 public class testBullet extends Projectile { 
 	public testBullet(Enemy t, double[] startingLoc) {
 		speed = 8;
-		damage = 10;
+		damage = 6;
 		target = t;
 
 		try {

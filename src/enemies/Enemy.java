@@ -17,6 +17,8 @@ public abstract class Enemy {
 	public double[] pos = new double[2];
 	public double[] dir = new double[2];
 
+	public boolean success = false;
+	
 	public ArrayList<Point> waypoints;
 	public Point destination;
 	public double walkSpeed = 1;
@@ -32,7 +34,7 @@ public abstract class Enemy {
 		if (waypoints.size() != 0) {
 			destination = waypoints.remove(0);
 		} else {
-			destination = null;
+			success = true;
 		}
 	}
 	
@@ -69,7 +71,9 @@ public abstract class Enemy {
 		}
 		
 		//closest waypoint to currDestination
-		dist += waypoints.get(0).distanceSq(destination);
+		if (waypoints.size() > 0) {
+			dist += waypoints.get(0).distanceSq(destination);
+		}
 		
 		//currDestination to currPos
 		dist += destination.distanceSq(pos[0], pos[1]);

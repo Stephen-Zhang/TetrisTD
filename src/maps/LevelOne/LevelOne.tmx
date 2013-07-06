@@ -4,17 +4,17 @@
   <image source="LevelOne.png" width="512" height="384"/>
   <tile id="0">
    <properties>
-    <property name="buildable" value="true"/>
+    <property name="buildable" value="yes"/>
    </properties>
   </tile>
   <tile id="48">
    <properties>
-    <property name="buildable" value="false"/>
+    <property name="buildable" value="no"/>
    </properties>
   </tile>
   <tile id="186">
    <properties>
-    <property name="buildable" value="false"/>
+    <property name="buildable" value="no"/>
    </properties>
   </tile>
  </tileset>

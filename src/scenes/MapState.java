@@ -10,7 +10,9 @@ import levels.LevelOne;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
@@ -40,8 +42,9 @@ public class MapState extends BasicGameState {
 	public HashMap<Enemy, ArrayList<Tower>> remTfromE = new HashMap<Enemy, ArrayList<Tower>>();
 
 	public ArrayList<Projectile> addB = new ArrayList<Projectile>();
-	public HashMap<Enemy, ArrayList<Tower>> addTtoE = new HashMap<Enemy, ArrayList<Tower>>();
 	public ArrayList<Enemy> addE = new ArrayList<Enemy>();
+	public ArrayList<Tower> addT = new ArrayList<Tower>();
+	public HashMap<Enemy, ArrayList<Tower>> addTtoE = new HashMap<Enemy, ArrayList<Tower>>();
 
 	public MapState(int id) {
 		stateID = id;
@@ -58,6 +61,7 @@ public class MapState extends BasicGameState {
 		
 		double[] tCent = {6*32, 14*32};
 		towers.add(new TestTower(tCent));
+		
 	}
 
 	@Override
@@ -93,6 +97,9 @@ public class MapState extends BasicGameState {
 		g.drawString("Gold: "+player.gold, 900, 200);
 		g.drawString("Lives: "+player.lives, 900, 225);
 		
+		//TODO: For every tower type, draw one of its icons on the right hand side for selecting
+		TestTower.drawIcon(600,  700);
+		
 		for (Enemy e : monsters ) {
 			e.render(g);
 		}
@@ -100,18 +107,82 @@ public class MapState extends BasicGameState {
 		for (Tower t : towers ) {
 			t.render(g);
 			g.setColor(new Color (0, 255, 0) );
-			g.draw(t.rangeInd);
+			g.draw(t.realShape);
 		}
 		
 		for (Projectile p : bullets ) {
 			p.render(g);
 		}
+		
+		if (player.holding != "none") {
+			//Holding Tower. Time to draw placement squares
+			Point[] drawThisShape = player.getTowerShape();
+			Point[] drawThisRange = player.getTowerRange();
+			
+			if (canPutDown(drawThisShape)) {
+				for (Point p: drawThisShape) {
+					g.setColor(new Color(0, 200, 0, 100));
+					g.fill(new Rectangle(p.x+player.currMouseLoc[0], p.y+player.currMouseLoc[1], 32, 32));
+				}
+				
+				g.setColor(new Color(0, 0, 200, 100));
+				for (Point p: drawThisRange) {
+					g.fill(new Rectangle(p.x+player.currMouseLoc[0], p.y+player.currMouseLoc[1], 32, 32));
+				}
+			}
+			else {
+				g.setColor(new Color(200, 0, 0, 100));
+				for (Point p: drawThisShape) {
+					g.fill(new Rectangle(p.x+player.currMouseLoc[0], p.y+player.currMouseLoc[1], 32, 32));
+				}
+			}
+		}
+		
+		g.resetFont();
+	}
+	
+	private boolean canPutDown(Point[] shape) {
+		// TODO Needs cleaning up. must be an easier way to check tile properties =\ Hard Coding might be necessary =(		
+		int tileX;
+		int tileY;
+		int tileID;
+		for (Point p : shape ) {
+			tileX = (p.x+player.currMouseLoc[0])/32;
+			tileY = (p.y+player.currMouseLoc[1])/32;
+			
+			//For every point, check if the square it forms -1 on each side fits inside any tower's shape. If so, that means they intersect.
+			//Not using intersects because edges count and towers should be buildable next to one another.
+			if (player.gold < player.getCostOfTower()) {
+				return false;
+			}
+			
+			for (Tower t : towers ) {
+				if (t.realShape.contains(new Rectangle(tileX*32+1, tileY*32+1, 30, 30))) {
+					return false;
+				}
+			}
+			
+			if (tileX < 0 || tileX > 32 || tileY < 0 || tileY > 24) {
+				continue;
+			}
+			
+			tileID = currMap.getTileId(tileX, tileY, 0);
+			
+			if (tileID == 49 || tileID == 187) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta)
 			throws SlickException {
 		currLevel.waveTimer += delta;
+		
+		
+		
 		if (currLevel.currWave.checkNextEnemy(currLevel.waveTimer)) {
 			addE.add(currLevel.currWave.getNextEnemy());
 		}
@@ -124,7 +195,7 @@ public class MapState extends BasicGameState {
 				//Reached waypoint, new waypoint
 				e.getNextDest();
 			}
-			if (e.destination == null) {
+			if (e.success) {
 				player.lives--;
 				removeE.add(e);
 			} else {
@@ -220,20 +291,20 @@ public class MapState extends BasicGameState {
 					}
 				}
 			}
-			
-			for ( Projectile p : bullets ) {
-				if (p.getHitbox().intersects(e.getBulletBox()) ) {
-					//Bullet hit! drain some HP
-					e.currHealth -= p.damage;
-					if (e.currHealth <= 0) {						
-						removeE.add(e);
-						for (Tower t : e.hittingT ) {
-							t.target = null;
-						}
-						player.gold += e.bounty;
+		}
+		
+		for ( Projectile p : bullets ) {
+			if (p.getHitbox().intersects(p.target.getBulletBox()) ) {
+				//Bullet hit! drain some HP
+				p.target.currHealth -= p.damage;
+				if (p.target.currHealth <= 0) {						
+					removeE.add(p.target);
+					for (Tower t : p.target.hittingT ) {
+						t.target = null;
 					}
-					removeB.add(p);
+					player.gold += p.target.bounty;
 				}
+				removeB.add(p);
 			}
 		}
 		
@@ -287,6 +358,10 @@ public class MapState extends BasicGameState {
 		for (Enemy e : addE) {
 			monsters.add(e);
 		}
+
+		for (Tower t : addT) {
+			towers.add(t);
+		}
 		
 		//Add all towers that are hitting enemy
 		for (Enemy e : addTtoE.keySet()) {
@@ -297,11 +372,48 @@ public class MapState extends BasicGameState {
 		
 		addB.clear();
 		addE.clear();
+		addT.clear();
 		addTtoE.clear();
 		remTfromE.clear();
 		removeB.clear();
 		removeE.clear();
 		
 	}
+	
+	@Override
+	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
+		//Determine coordinate location
 
+		player.currMouseLoc[0] = newx;
+		player.currMouseLoc[1] = newy;
+		
+		//Convert to nearest grid location
+		
+		player.currMouseLoc[0] = player.currMouseLoc[0] - player.currMouseLoc[0]%32;
+		player.currMouseLoc[1] = player.currMouseLoc[1] - player.currMouseLoc[1]%32;
+		
+	}
+	
+	@Override
+	public void mousePressed(int button, int x, int y) {
+		if (player.holding != "none" ) {
+			if (canPutDown(player.getTowerShape()) && (player.gold >= player.getCostOfTower()) ) {
+				player.gold -= player.getCostOfTower();
+				addT.add(player.makeNewTower());
+				player.holding = "none";
+			}
+		}
+		if (button == 0) {
+			if ((x >= 600 && x <= 632) && (y >= 700 && x <= 732)) {
+				player.holding = "test";
+			}
+		}
+	}
+	
+	@Override
+	public void keyPressed(int key, char c) {
+		if (key == Input.KEY_T) {
+			player.holding = "test";
+		}
+	}
 }
