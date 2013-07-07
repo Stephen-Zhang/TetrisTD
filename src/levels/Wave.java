@@ -19,7 +19,7 @@ public class Wave {
 	}
 	
 	public Enemy getNextEnemy() {
-		if (enemyCtr == enemies.length) { 
+		if (waveDone()) { 
 			return null;
 		}
 		Enemy e = enemies[enemyCtr];
@@ -28,11 +28,18 @@ public class Wave {
 		return e;
 	}
 	
+	public boolean waveDone() {
+		if (enemyCtr == enemies.length) {
+			return true;
+		}
+		return false;
+	}
+	
 	public boolean checkNextEnemy(int timer) {
 		if (timing.size() == 0) {
 			return false;
 		}
-		if (timer >= timing.get(0)+startTime) {
+		if (timer >= timing.get(0)) {
 			return true;
 		}
 		return false;

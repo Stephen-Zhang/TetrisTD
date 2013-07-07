@@ -9,12 +9,12 @@ public abstract class Level {
 	public double[] startLoc = new double[2];
 	public ArrayList<Point> waypts = new ArrayList<Point>();
 	public int waveTimer = 0;
+	public boolean done = false;
 	
 	public void getNextWave() {
 		if (waves.size() > 0) {
+			waveTimer = 0;
 			currWave = waves.remove(0);
-		} else {
-			System.out.println("FINISHED SPAWNING ALL UNITS IN THIS LEVEL!");
 		}
 	}
 	
@@ -25,4 +25,10 @@ public abstract class Level {
 		return false;
 	}
 	
+	public boolean isDone() {
+		if (waves.size() == 0 && currWave.waveDone()) {
+			return true;
+		}
+		return false;
+	}
 }

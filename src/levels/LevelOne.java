@@ -58,7 +58,7 @@ public class LevelOne extends Level {
 		
 		Wave wOne = new Wave(1, wOneEnemies, tOne, 0);
 		
-		Wave wTwo = new Wave(1, wTwoEnemies, tTwo, 4000);
+		Wave wTwo = new Wave(1, wTwoEnemies, tTwo, 10000);
 		
 		currWave = wOne;
 		waves.add(wTwo);

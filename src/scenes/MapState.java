@@ -32,6 +32,8 @@ public class MapState extends BasicGameState {
 
 	public Player player;
 	
+	public boolean sendEarly = false;
+	
 	public ArrayList<Enemy> monsters = new ArrayList<Enemy>();
 	public ArrayList<Point> waypoints = new ArrayList<Point>();
 	public ArrayList<Tower> towers = new ArrayList<Tower>();
@@ -96,6 +98,17 @@ public class MapState extends BasicGameState {
 		g.setColor(new Color(255,255,255));
 		g.drawString("Gold: "+player.gold, 900, 200);
 		g.drawString("Lives: "+player.lives, 900, 225);
+		
+		if (sendEarly && !currLevel.isDone()) {
+			g.drawString("Press P to", 900, 300);
+			g.drawString("send next", 900, 325);
+			g.drawString("wave!", 900, 350);
+		}
+		if (currLevel.isDone() && monsters.size() == 0) {
+			g.drawString("You have", 900, 300);
+			g.drawString("finished", 900, 325);
+			g.drawString("the level!", 900, 350);			
+		}
 		
 		//TODO: For every tower type, draw one of its icons on the right hand side for selecting
 		TestTower.drawIcon(600,  700);
@@ -188,6 +201,11 @@ public class MapState extends BasicGameState {
 		}
 		if (currLevel.checkSendWave()) {
 			currLevel.getNextWave();
+			sendEarly = false;
+		}
+		if (currLevel.currWave.waveDone() && monsters.size() == 0) {
+			//Cleared wave, send early button becomes available
+			sendEarly = true;
 		}
 		
 		for (Enemy e : monsters ) {
@@ -414,6 +432,10 @@ public class MapState extends BasicGameState {
 	public void keyPressed(int key, char c) {
 		if (key == Input.KEY_T) {
 			player.holding = "test";
+		}
+		if (sendEarly && key == Input.KEY_P) {
+			currLevel.getNextWave();
+			sendEarly = false;
 		}
 	}
 }
