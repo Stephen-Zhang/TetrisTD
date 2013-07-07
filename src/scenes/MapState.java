@@ -111,7 +111,7 @@ public class MapState extends BasicGameState {
 		}
 		
 		//TODO: For every tower type, draw one of its icons on the right hand side for selecting
-		TestTower.drawIcon(600,  700);
+		TestTower.drawIcon(TestTower.iconLoc[0], TestTower.iconLoc[1]);
 		
 		for (Enemy e : monsters ) {
 			e.render(g);
@@ -422,7 +422,8 @@ public class MapState extends BasicGameState {
 			}
 		}
 		if (button == 0) {
-			if ((x >= 600 && x <= 632) && (y >= 700 && x <= 732)) {
+			//Hardcoded atm. TODO Make this not-hard coded... somehow.`
+			if (TestTower.iconRect().contains(x, y)) {
 				player.holding = "test";
 			}
 		}

@@ -4,6 +4,7 @@ import java.awt.Point;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.ShapeRenderer;
@@ -31,12 +32,15 @@ public abstract class Tower {
 	
 	public Enemy target;
 	
-	public Image sprite;
+	public static String SpritePath;
 	
+	public static String IconPath;
+
 	public static String name;
 	
-	public void render(Graphics g) {
+	public void render(Graphics g) throws SlickException {
 		// TODO Auto-generated method stub
+		Image sprite = new Image("resources/towers/testTower.png");
 		ShapeRenderer.texture(realShape, sprite);
 	}
 	
@@ -48,6 +52,11 @@ public abstract class Tower {
 		}
 		
 		return retVal;
+	}
+
+	public static void drawIcon(int x, int y) throws SlickException {
+		Image icon = new Image("resources/towers/testTower.png");
+		icon.draw(x, y);
 	}
 	
 	public abstract Projectile fireBullet();

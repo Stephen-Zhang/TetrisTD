@@ -2,8 +2,7 @@ package towers;
 
 import java.awt.Point;
 
-import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 
 import projectiles.Projectile;
@@ -39,8 +38,15 @@ public class TestTower extends Tower {
 	
 	public static String name = "test";
 	
+	public static String SpritePath = "resources/towers/testTower.png";
+	
+	public static String IconPath = "resources/towers/testTower.png";
+	public static int[] iconLoc = {900, 600};
+	
 	public static int cost = 200;
 
+	
+	
 	public TestTower(double[] cent) {
 		fireRate = .01;
 		
@@ -52,15 +58,7 @@ public class TestTower extends Tower {
 				
 		realShape = formShape(shape);
 				
-		rangeInd = formShape(range);
-		
-		try {
-			sprite = new Image("resources/towers/testTower.png");
-		} catch (SlickException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		rangeInd = formShape(range);		
 	
 	}
 
@@ -73,8 +71,10 @@ public class TestTower extends Tower {
 		// TODO Auto-generated method stub
 		return new testBullet(target, center);
 	}
-	
-	public static void drawIcon(int x, int y) throws SlickException {
-		new Image("resources/towers/testTower.png").draw(x, y);
+
+	public static Shape iconRect() {
+		// TODO Auto-generated method stub
+		return new Rectangle(iconLoc[0], iconLoc[1], 32, 32);
 	}
+
 }
