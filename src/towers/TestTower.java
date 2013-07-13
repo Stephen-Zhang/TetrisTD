@@ -45,8 +45,6 @@ public class TestTower extends Tower {
 	
 	public static int cost = 200;
 
-	
-	
 	public TestTower(double[] cent) {
 		fireRate = .01;
 		

@@ -56,11 +56,18 @@ public class LevelOne extends Level {
 		tTwo.add(new Integer(5000));
 		tTwo.add(new Integer(6000));
 		
-		Wave wOne = new Wave(1, wOneEnemies, tOne, 0);
+		Wave testEmpty = new Wave(1, new Enemy[0], new ArrayList<Integer>(), 0, "Press Enter or Space to move onto the next text bubble. You may also " +
+				"click on the bubble itself to close it.");
 		
-		Wave wTwo = new Wave(1, wTwoEnemies, tTwo, 10000);
+		Wave wOne = new Wave(1, wOneEnemies, tOne, 0, "Welcome to Tetris TD Alpha Version .00! This game is a barely playable game but here is the first test level! " +
+				"Please build the first tower available to you and destroy your enemies! You may build this tower by clicking on the icon or pressing t " +
+				"on your keyboard. Good luck!");
 		
-		currWave = wOne;
+		Wave wTwo = new Wave(2, wTwoEnemies, tTwo, 10000, "Phew. You beat the first wave! but how are you going to deal with this next massive swarm of enemies? " +
+				"Hint: You should build some Area of Effect Towers that have now been enabled.");
+		
+		currWave = testEmpty;
+		waves.add(wOne);
 		waves.add(wTwo);
 	}
 }

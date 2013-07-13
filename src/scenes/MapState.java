@@ -7,6 +7,7 @@ import java.util.HashMap;
 import levels.Level;
 import levels.LevelOne;
 
+import org.lwjgl.input.Cursor;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -29,6 +30,7 @@ public class MapState extends BasicGameState {
 	int stateID = -1;
 	private TiledMap currMap;
 	public Level currLevel;
+	public TextEvent textEvent;
 
 	public Player player;
 	
@@ -152,6 +154,13 @@ public class MapState extends BasicGameState {
 		}
 		
 		g.resetFont();
+		
+		if (this.textEvent != null) {
+			this.textEvent.render(g);
+			if (this.textEvent.textBox.contains(this.player.currMouseLoc[0], this.player.currMouseLoc[1])) {
+				
+			}
+		}	
 	}
 	
 	private boolean canPutDown(Point[] shape) {
@@ -192,58 +201,29 @@ public class MapState extends BasicGameState {
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta)
 			throws SlickException {
-		currLevel.waveTimer += delta;
-		
-		
-		
-		if (currLevel.currWave.checkNextEnemy(currLevel.waveTimer)) {
-			addE.add(currLevel.currWave.getNextEnemy());
+		if (this.textEvent != null) {
+			//Continue on textEvent, don't update anything
 		}
-		if (currLevel.checkSendWave()) {
-			currLevel.getNextWave();
-			sendEarly = false;
-		}
-		if (currLevel.currWave.waveDone() && monsters.size() == 0) {
-			//Cleared wave, send early button becomes available
-			sendEarly = true;
-		}
-		
-		for (Enemy e : monsters ) {
-			if ( ( (int) e.pos[0] == (int) e.destination.x ) && ( (int) e.pos[1] == (int) e.destination.y ) ) {
-				//Reached waypoint, new waypoint
-				e.getNextDest();
-			}
-			if (e.success) {
-				player.lives--;
-				removeE.add(e);
-			} else {
-				e.getDirection();
-				e.pos[0] += e.dir[0]*e.walkSpeed;
-				e.pos[1] += e.dir[1]*e.walkSpeed;
+		else {
+			if (this.currLevel.currWave.checkTextEvent()) {
+				//Spawn text Event
+				this.textEvent = new TextEvent(this.currLevel.currWave.getTextEvent());
 			}
 			
-			//Leaving range of towers
-			for (Tower t : e.hittingT) {
-				if (!t.rangeInd.intersects(e.getHitbox()) ) {
-					//no longer in range, remove from hittingT, remove that tower's target on enemy
-					t.target = null;
-					
-					//If dictionary has entries already...
-					if (remTfromE.containsKey(e)) {
-						//add tower to curr ArrayList
-						ArrayList<Tower> temp = remTfromE.get(e);
-						temp.add(t);
-						remTfromE.put(e, temp);
-					} else {
-						//add entry to dictionary, add new arrayList to dictionary
-						ArrayList<Tower> temp = new ArrayList<Tower>();
-						temp.add(t);
-						remTfromE.put(e, temp);
-					}
-				}
-			}
+			currLevel.waveTimer += delta;
 			
-			//Entering range of towers
+			if (currLevel.currWave.checkNextEnemy(currLevel.waveTimer)) {
+				addE.add(currLevel.currWave.getNextEnemy());
+			}
+			if (currLevel.checkSendWave()) {
+				currLevel.getNextWave();
+				sendEarly = false;
+			}
+			if (currLevel.currWave.waveDone() && monsters.size() == 0) {
+				//Cleared wave, send early button becomes available
+				sendEarly = true;
+			}
+
 			for (Tower t: towers) {
 				//Check if tower needs to check firing
 				if (t.canFire == false) {
@@ -252,47 +232,51 @@ public class MapState extends BasicGameState {
 						t.cooldown = 0;
 					}
 				}
-				//Range detection
-				if (t.rangeInd.intersects(e.getHitbox()) ) {
-					
-					//In Range, determine if has target
-					if (t.target == null) {
-						t.target = e;
+			}
+			
+			for (Enemy e : monsters ) {
+				if ( ( (int) e.pos[0] == (int) e.destination.x ) && ( (int) e.pos[1] == (int) e.destination.y ) ) {
+					//Reached waypoint, new waypoint
+					e.getNextDest();
+				}
+				if (e.success) {
+					player.lives--;
+					removeE.add(e);
+				} else {
+					e.getDirection();
+					e.pos[0] += e.dir[0]*e.walkSpeed;
+					e.pos[1] += e.dir[1]*e.walkSpeed;
+				}
+				
+				//Leaving range of towers
+				for (Tower t : e.hittingT) {
+					if (!t.rangeInd.intersects(e.getHitbox()) ) {
+						//no longer in range, remove from hittingT, remove that tower's target on enemy
+						t.target = null;
 						
-						//if addTtoE has more than 1 target already...
-						if (addTtoE.containsKey(e)) {
+						//If dictionary has entries already...
+						if (remTfromE.containsKey(e)) {
 							//add tower to curr ArrayList
-							ArrayList<Tower> temp = addTtoE.get(e);
+							ArrayList<Tower> temp = remTfromE.get(e);
 							temp.add(t);
-							addTtoE.put(e, temp);
+							remTfromE.put(e, temp);
 						} else {
 							//add entry to dictionary, add new arrayList to dictionary
 							ArrayList<Tower> temp = new ArrayList<Tower>();
 							temp.add(t);
-							addTtoE.put(e, temp);
+							remTfromE.put(e, temp);
 						}
-
 					}
-					else {
-						//If has target, determine if curr Target is ahead of other possible targets
-						if (e.distToGoal() < t.target.distToGoal()) {
-							//new target acquired
-							
-							//if t's target is leaving multiple targets...
-							if (remTfromE.containsKey(t.target)) {
-								//add tower to curr ArrayList
-								ArrayList<Tower> temp = remTfromE.get(t.target);
-								temp.add(t);
-								remTfromE.put(t.target, temp);
-							} else {
-								//add entry to dictionary, add new arrayList to dictionary
-								ArrayList<Tower> temp = new ArrayList<Tower>();
-								temp.add(t);
-								remTfromE.put(t.target, temp);
-							}
-							
+				}
+				
+				//Entering range of towers
+				for (Tower t: towers) {
+					//Range detection
+					if (t.rangeInd.intersects(e.getHitbox()) ) {
+						//In Range, determine if has target
+						if (t.target == null) {
 							t.target = e;
-
+							
 							//if addTtoE has more than 1 target already...
 							if (addTtoE.containsKey(e)) {
 								//add tower to curr ArrayList
@@ -306,96 +290,129 @@ public class MapState extends BasicGameState {
 								addTtoE.put(e, temp);
 							}
 						}
+						else {
+							//If has target, determine if curr Target is ahead of other possible targets
+							if (e.distToGoal() < t.target.distToGoal()) {
+								//new target acquired
+								
+								//if t's target is leaving multiple targets...
+								if (remTfromE.containsKey(t.target)) {
+									//add tower to curr ArrayList
+									ArrayList<Tower> temp = remTfromE.get(t.target);
+									temp.add(t);
+									remTfromE.put(t.target, temp);
+								} else {
+									//add entry to dictionary, add new arrayList to dictionary
+									ArrayList<Tower> temp = new ArrayList<Tower>();
+									temp.add(t);
+									remTfromE.put(t.target, temp);
+								}
+								
+								t.target = e;
+
+								//if addTtoE has more than 1 target already...
+								if (addTtoE.containsKey(e)) {
+									//add tower to curr ArrayList
+									ArrayList<Tower> temp = addTtoE.get(e);
+									temp.add(t);
+									addTtoE.put(e, temp);
+								} else {
+									//add entry to dictionary, add new arrayList to dictionary
+									ArrayList<Tower> temp = new ArrayList<Tower>();
+									temp.add(t);
+									addTtoE.put(e, temp);
+								}
+							}
+						}
 					}
 				}
 			}
-		}
-		
-		for ( Projectile p : bullets ) {
-			if (p.getHitbox().intersects(p.target.getBulletBox()) ) {
-				//Bullet hit! drain some HP
-				p.target.currHealth -= p.damage;
-				if (p.target.currHealth <= 0) {						
-					removeE.add(p.target);
-					for (Tower t : p.target.hittingT ) {
-						t.target = null;
+			
+			for ( Projectile p : bullets ) {
+				if (p.getHitbox().intersects(p.target.getBulletBox()) ) {
+					//Bullet hit! drain some HP
+					p.target.currHealth -= p.damage;
+					if (p.target.currHealth <= 0) {						
+						removeE.add(p.target);
+						for (Tower t : p.target.hittingT ) {
+							t.target = null;
+						}
+						player.gold += p.target.bounty;
 					}
-					player.gold += p.target.bounty;
-				}
-				removeB.add(p);
-			}
-		}
-		
-		for (Tower t : towers) {
-			//If target is acquired, attack it
-			if (t.target != null) {
-				//Spawn bullet that flies at shortest path to target
-				if (t.canFire) {
-					addB.add(t.fireBullet());
-					t.canFire = false;
-				} else {
-					//Adding time in milliseconds since last fired to cooldown
-					t.cooldown += delta;
+					removeB.add(p);
 				}
 			}
-		}
-		
-		//Dealing with bullet Travel
-		for (Projectile p : bullets) {
-			if (removeE.contains(p.target)) {
-				removeB.add(p);
-				continue;
+			
+			for (Tower t : towers) {
+				//If target is acquired, attack it
+				if (t.target != null) {
+					//Spawn bullet that flies at shortest path to target
+					if (t.canFire) {
+						addB.add(t.fireBullet());
+						t.canFire = false;
+					} else {
+						//Adding time in milliseconds since last fired to cooldown
+						t.cooldown += delta;
+					}
+				}
 			}
-			//Update direction and movement
-			p.getDirection();
-			p.pos[0] += p.dir[0]*p.speed;
-			p.pos[1] += p.dir[1]*p.speed;
-		}
-		
-		//Remove all bullets that need to be removed
-		for (Projectile p : removeB) {
-			bullets.remove(p);
-		}
-		
-		for (Enemy e : removeE) {
-			monsters.remove(e);
-		}
-
-		//Remove all towers that have left range on enemy
-		for (Enemy e : remTfromE.keySet()) {
-			for (Tower t : remTfromE.get(e)) {
-				e.hittingT.remove(t);
+			
+			//Dealing with bullet Travel
+			for (Projectile p : bullets) {
+				if (removeE.contains(p.target)) {
+					removeB.add(p);
+					continue;
+				}
+				//Update direction and movement
+				p.getDirection();
+				p.pos[0] += p.dir[0]*p.speed;
+				p.pos[1] += p.dir[1]*p.speed;
 			}
-		}
-
-		//Add new bullets
-		for (Projectile p : addB) {
-			bullets.add(p);
-		}
-		
-		for (Enemy e : addE) {
-			monsters.add(e);
-		}
-
-		for (Tower t : addT) {
-			towers.add(t);
-		}
-		
-		//Add all towers that are hitting enemy
-		for (Enemy e : addTtoE.keySet()) {
-			for (Tower t : addTtoE.get(e)) {
-				e.hittingT.add(t);
+			
+			//Remove all bullets that need to be removed
+			for (Projectile p : removeB) {
+				bullets.remove(p);
 			}
+			
+			for (Enemy e : removeE) {
+				monsters.remove(e);
+			}
+
+			//Remove all towers that have left range on enemy
+			for (Enemy e : remTfromE.keySet()) {
+				for (Tower t : remTfromE.get(e)) {
+					e.hittingT.remove(t);
+				}
+			}
+
+			//Add new bullets
+			for (Projectile p : addB) {
+				bullets.add(p);
+			}
+			
+			for (Enemy e : addE) {
+				monsters.add(e);
+			}
+
+			for (Tower t : addT) {
+				towers.add(t);
+			}
+			
+			//Add all towers that are hitting enemy
+			for (Enemy e : addTtoE.keySet()) {
+				for (Tower t : addTtoE.get(e)) {
+					e.hittingT.add(t);
+				}
+			}
+			
+			addB.clear();
+			addE.clear();
+			addT.clear();
+			addTtoE.clear();
+			remTfromE.clear();
+			removeB.clear();
+			removeE.clear();			
 		}
-		
-		addB.clear();
-		addE.clear();
-		addT.clear();
-		addTtoE.clear();
-		remTfromE.clear();
-		removeB.clear();
-		removeE.clear();
-		
 	}
 	
 	@Override
@@ -422,9 +439,16 @@ public class MapState extends BasicGameState {
 			}
 		}
 		if (button == 0) {
-			//Hardcoded atm. TODO Make this not-hard coded... somehow.`
-			if (TestTower.iconRect().contains(x, y)) {
-				player.holding = "test";
+			if (this.textEvent != null) {
+				if (this.textEvent.textBox.contains(x, y) ) {
+					//Clicking on textbox makes it go away
+					this.textEvent = null;
+				}
+			} else {
+				//Less hard-coded now!. TODO Run a for loop to go over all icons. List of towers should be in player once its setup.
+				if (TestTower.iconRect().contains(x, y)) {
+					player.holding = "test";
+				}				
 			}
 		}
 	}
@@ -437,6 +461,10 @@ public class MapState extends BasicGameState {
 		if (sendEarly && key == Input.KEY_P) {
 			currLevel.getNextWave();
 			sendEarly = false;
+		}
+		if (this.textEvent!=null && (key == Input.KEY_ENTER || key == Input.KEY_SPACE) ) {
+			//Get rid of textEvent, resume game
+			this.textEvent = null;
 		}
 	}
 }

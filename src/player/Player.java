@@ -37,6 +37,10 @@ public class Player {
 	public void addTowerRange(Tower t) {
 		towerRange.put(t.name, t.range.clone());
 	}
+	
+	public void removeTower(Tower t) {
+		
+	}
 
 	public Point[] getTowerShape() {
 		return (towerShapes.get(holding));

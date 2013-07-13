@@ -9,13 +9,15 @@ public class Wave {
 	private int enemyCtr = 0;
 	protected Enemy[] enemies;
 	public ArrayList<Integer> timing;
+	public String textEvent;
 	public int startTime;
 	
-	public Wave(int id, Enemy[] e, ArrayList<Integer> timing, int startTime) {
+	public Wave(int id, Enemy[] e, ArrayList<Integer> timing, int startTime, String textEvent) {
 		this.waveID = id;
 		this.enemies = e;
 		this.timing = timing;
 		this.startTime = startTime;
+		this.textEvent = textEvent;
 	}
 	
 	public Enemy getNextEnemy() {
@@ -44,5 +46,19 @@ public class Wave {
 		}
 		return false;
 	}
+	
+	public boolean checkTextEvent() {
+		if (this.textEvent != null) {
+			return true;
+		}
+		return false;
+	}
+	
+	public String getTextEvent() {
+		String retVal = this.textEvent;
+		this.textEvent = null;
+		return retVal;
+	}
+	
 	
 }
