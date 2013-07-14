@@ -1,6 +1,8 @@
 package towers;
 
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -13,30 +15,30 @@ import projectiles.Projectile;
 import enemies.Enemy;
 
 public abstract class Tower {
+
 	public double fireRate;
-	
 	public boolean canFire;
 	public int cooldown;
+	public abstract Projectile fireBullet();
+
+	protected double[] center = new double[2];
 	
-	public double[] center = new double[2];
-		
-	public int cost;
+	protected static Point[] range;
+	protected Shape rangeInd;
 	
-	public static Point[] range;
-	public Shape rangeInd;
-	
-	public static Point[] shape;
-	public Shape realShape;
-	
-	public Shape[] realShapeTest;
+	protected static Point[] shape;
+	protected Shape realShape;
 	
 	public Enemy target;
 	
-	public static String SpritePath;
-	
-	public static String IconPath;
+	public abstract String getName();
 
-	public static String name;
+	public abstract String getSpritePath();
+	public abstract String getIconPath();
+	
+	public abstract int getCost();
+	public abstract Shape getShape();
+	public abstract Shape getRange();
 	
 	public void render(Graphics g) throws SlickException {
 		// TODO Auto-generated method stub
@@ -59,6 +61,44 @@ public abstract class Tower {
 		icon.draw(x, y);
 	}
 	
-	public abstract Projectile fireBullet();
+	public static void drawTowerIcon(TowerType t) throws SlickException {
+		switch(t) {
+		case TEST_TOWER:
+			TestTower.drawIcon(TestTower.iconLoc[0], TestTower.iconLoc[1]);
+			break;
+		}
+	}
+	
+	public static Rectangle towerIcon(TowerType t) {
+		switch(t) {
+		case TEST_TOWER:
+			return new Rectangle(TestTower.iconLoc[0], TestTower.iconLoc[1], 32, 32);
+		}
+		return null;
+	}
+	
+	public static int towerKey(TowerType t) {
+		switch(t) {
+		case TEST_TOWER:
+			return TestTower.key;
+		}
+		return -1;
+	}
+	
+	public abstract void acquireTargets(ArrayList<Enemy> enemies, HashMap<Enemy, ArrayList<Tower>> addTtoE, HashMap<Enemy, ArrayList<Tower>> remTfromE);
+
+	public abstract void fire(ArrayList<Projectile> addB);
+
+	public void updateTime(int delta) {
+		// TODO Auto-generated method stub
+		if (canFire == false) {
+			if (cooldown > fireRate*1000) {
+				canFire = true;
+				cooldown = 0;
+			} else {
+				cooldown += delta;
+			}
+		}
+	}
 	
 }

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import levels.Level;
 import levels.LevelOne;
 
-import org.lwjgl.input.Cursor;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -22,6 +21,7 @@ import player.Player;
 import projectiles.Projectile;
 import towers.TestTower;
 import towers.Tower;
+import towers.TowerType;
 import enemies.Enemy;
 
 public class MapState extends BasicGameState {
@@ -44,11 +44,13 @@ public class MapState extends BasicGameState {
 	public ArrayList<Projectile> removeB = new ArrayList<Projectile>();
 	public ArrayList<Enemy> removeE = new ArrayList<Enemy>();
 	public HashMap<Enemy, ArrayList<Tower>> remTfromE = new HashMap<Enemy, ArrayList<Tower>>();
+	public HashMap<Tower, ArrayList<Enemy>> remEfromT = new HashMap<Tower, ArrayList<Enemy>>();
 
 	public ArrayList<Projectile> addB = new ArrayList<Projectile>();
 	public ArrayList<Enemy> addE = new ArrayList<Enemy>();
 	public ArrayList<Tower> addT = new ArrayList<Tower>();
 	public HashMap<Enemy, ArrayList<Tower>> addTtoE = new HashMap<Enemy, ArrayList<Tower>>();
+	public HashMap<Tower, ArrayList<Enemy>> addEtoT = new HashMap<Tower, ArrayList<Enemy>>();
 
 	public MapState(int id) {
 		stateID = id;
@@ -62,10 +64,9 @@ public class MapState extends BasicGameState {
 		player = new Player(20, 100);
 		
 		currLevel = new LevelOne();
-		
-		double[] tCent = {6*32, 14*32};
-		towers.add(new TestTower(tCent));
-		
+		currLevel.getNextWave();		
+		player.removeAllTowers();
+		player.addBatchTowers(currLevel.currWave.updatePlayerTowers());
 	}
 
 	@Override
@@ -112,8 +113,9 @@ public class MapState extends BasicGameState {
 			g.drawString("the level!", 900, 350);			
 		}
 		
-		//TODO: For every tower type, draw one of its icons on the right hand side for selecting
-		TestTower.drawIcon(TestTower.iconLoc[0], TestTower.iconLoc[1]);
+		for (TowerType t : player.availTowers) {
+			Tower.drawTowerIcon(t);
+		}
 		
 		for (Enemy e : monsters ) {
 			e.render(g);
@@ -122,18 +124,18 @@ public class MapState extends BasicGameState {
 		for (Tower t : towers ) {
 			t.render(g);
 			g.setColor(new Color (0, 255, 0) );
-			g.draw(t.realShape);
+			g.draw(t.getShape());
 		}
 		
 		for (Projectile p : bullets ) {
 			p.render(g);
 		}
 		
-		if (player.holding != "none") {
+		if (player.holding != TowerType.NULL) {
 			//Holding Tower. Time to draw placement squares
 			Point[] drawThisShape = player.getTowerShape();
 			Point[] drawThisRange = player.getTowerRange();
-			
+
 			if (canPutDown(drawThisShape)) {
 				for (Point p: drawThisShape) {
 					g.setColor(new Color(0, 200, 0, 100));
@@ -179,13 +181,13 @@ public class MapState extends BasicGameState {
 			}
 			
 			for (Tower t : towers ) {
-				if (t.realShape.contains(new Rectangle(tileX*32+1, tileY*32+1, 30, 30))) {
+				if (t.getShape().contains(new Rectangle(tileX*32+1, tileY*32+1, 30, 30))) {
 					return false;
 				}
 			}
 			
 			if (tileX < 0 || tileX > 32 || tileY < 0 || tileY > 24) {
-				continue;
+				return false;
 			}
 			
 			tileID = currMap.getTileId(tileX, tileY, 0);
@@ -208,6 +210,7 @@ public class MapState extends BasicGameState {
 			if (this.currLevel.currWave.checkTextEvent()) {
 				//Spawn text Event
 				this.textEvent = new TextEvent(this.currLevel.currWave.getTextEvent());
+				return;
 			}
 			
 			currLevel.waveTimer += delta;
@@ -217,6 +220,8 @@ public class MapState extends BasicGameState {
 			}
 			if (currLevel.checkSendWave()) {
 				currLevel.getNextWave();
+				player.removeAllTowers();
+				player.addBatchTowers(currLevel.currWave.updatePlayerTowers());
 				sendEarly = false;
 			}
 			if (currLevel.currWave.waveDone() && monsters.size() == 0) {
@@ -224,16 +229,6 @@ public class MapState extends BasicGameState {
 				sendEarly = true;
 			}
 
-			for (Tower t: towers) {
-				//Check if tower needs to check firing
-				if (t.canFire == false) {
-					if (t.cooldown > t.fireRate*1000) {
-						t.canFire = true;
-						t.cooldown = 0;
-					}
-				}
-			}
-			
 			for (Enemy e : monsters ) {
 				if ( ( (int) e.pos[0] == (int) e.destination.x ) && ( (int) e.pos[1] == (int) e.destination.y ) ) {
 					//Reached waypoint, new waypoint
@@ -243,92 +238,29 @@ public class MapState extends BasicGameState {
 					player.lives--;
 					removeE.add(e);
 				} else {
-					e.getDirection();
-					e.pos[0] += e.dir[0]*e.walkSpeed;
-					e.pos[1] += e.dir[1]*e.walkSpeed;
+					e.updateMovement();
 				}
 				
-				//Leaving range of towers
-				for (Tower t : e.hittingT) {
-					if (!t.rangeInd.intersects(e.getHitbox()) ) {
-						//no longer in range, remove from hittingT, remove that tower's target on enemy
-						t.target = null;
-						
-						//If dictionary has entries already...
-						if (remTfromE.containsKey(e)) {
-							//add tower to curr ArrayList
-							ArrayList<Tower> temp = remTfromE.get(e);
-							temp.add(t);
-							remTfromE.put(e, temp);
-						} else {
-							//add entry to dictionary, add new arrayList to dictionary
-							ArrayList<Tower> temp = new ArrayList<Tower>();
-							temp.add(t);
-							remTfromE.put(e, temp);
-						}
-					}
-				}
-				
-				//Entering range of towers
-				for (Tower t: towers) {
-					//Range detection
-					if (t.rangeInd.intersects(e.getHitbox()) ) {
-						//In Range, determine if has target
-						if (t.target == null) {
-							t.target = e;
-							
-							//if addTtoE has more than 1 target already...
-							if (addTtoE.containsKey(e)) {
-								//add tower to curr ArrayList
-								ArrayList<Tower> temp = addTtoE.get(e);
-								temp.add(t);
-								addTtoE.put(e, temp);
-							} else {
-								//add entry to dictionary, add new arrayList to dictionary
-								ArrayList<Tower> temp = new ArrayList<Tower>();
-								temp.add(t);
-								addTtoE.put(e, temp);
-							}
-						}
-						else {
-							//If has target, determine if curr Target is ahead of other possible targets
-							if (e.distToGoal() < t.target.distToGoal()) {
-								//new target acquired
-								
-								//if t's target is leaving multiple targets...
-								if (remTfromE.containsKey(t.target)) {
-									//add tower to curr ArrayList
-									ArrayList<Tower> temp = remTfromE.get(t.target);
-									temp.add(t);
-									remTfromE.put(t.target, temp);
-								} else {
-									//add entry to dictionary, add new arrayList to dictionary
-									ArrayList<Tower> temp = new ArrayList<Tower>();
-									temp.add(t);
-									remTfromE.put(t.target, temp);
-								}
-								
-								t.target = e;
-
-								//if addTtoE has more than 1 target already...
-								if (addTtoE.containsKey(e)) {
-									//add tower to curr ArrayList
-									ArrayList<Tower> temp = addTtoE.get(e);
-									temp.add(t);
-									addTtoE.put(e, temp);
-								} else {
-									//add entry to dictionary, add new arrayList to dictionary
-									ArrayList<Tower> temp = new ArrayList<Tower>();
-									temp.add(t);
-									addTtoE.put(e, temp);
-								}
-							}
-						}
-					}
-				}
+				e.loseTowers(remTfromE);				
 			}
 			
+			for (Tower t: towers) {
+				//Check if tower needs to check firing
+				t.updateTime(delta);
+
+				t.acquireTargets(monsters, addTtoE, remTfromE);
+
+				t.fire(addB);
+			}			
+			
 			for ( Projectile p : bullets ) {
+				if (removeE.contains(p.target)) {
+					removeB.add(p);
+					continue;
+				}
+				
+				p.updateMovement();
+
 				if (p.getHitbox().intersects(p.target.getBulletBox()) ) {
 					//Bullet hit! drain some HP
 					p.target.currHealth -= p.damage;
@@ -341,32 +273,6 @@ public class MapState extends BasicGameState {
 					}
 					removeB.add(p);
 				}
-			}
-			
-			for (Tower t : towers) {
-				//If target is acquired, attack it
-				if (t.target != null) {
-					//Spawn bullet that flies at shortest path to target
-					if (t.canFire) {
-						addB.add(t.fireBullet());
-						t.canFire = false;
-					} else {
-						//Adding time in milliseconds since last fired to cooldown
-						t.cooldown += delta;
-					}
-				}
-			}
-			
-			//Dealing with bullet Travel
-			for (Projectile p : bullets) {
-				if (removeE.contains(p.target)) {
-					removeB.add(p);
-					continue;
-				}
-				//Update direction and movement
-				p.getDirection();
-				p.pos[0] += p.dir[0]*p.speed;
-				p.pos[1] += p.dir[1]*p.speed;
 			}
 			
 			//Remove all bullets that need to be removed
@@ -409,6 +315,8 @@ public class MapState extends BasicGameState {
 			addE.clear();
 			addT.clear();
 			addTtoE.clear();
+			addEtoT.clear();
+			remEfromT.clear();
 			remTfromE.clear();
 			removeB.clear();
 			removeE.clear();			
@@ -431,11 +339,11 @@ public class MapState extends BasicGameState {
 	
 	@Override
 	public void mousePressed(int button, int x, int y) {
-		if (player.holding != "none" ) {
+		if (player.holding != TowerType.NULL ) {
 			if (canPutDown(player.getTowerShape()) && (player.gold >= player.getCostOfTower()) ) {
 				player.gold -= player.getCostOfTower();
 				addT.add(player.makeNewTower());
-				player.holding = "none";
+				player.holding = TowerType.NULL;
 			}
 		}
 		if (button == 0) {
@@ -445,21 +353,33 @@ public class MapState extends BasicGameState {
 					this.textEvent = null;
 				}
 			} else {
-				//Less hard-coded now!. TODO Run a for loop to go over all icons. List of towers should be in player once its setup.
-				if (TestTower.iconRect().contains(x, y)) {
-					player.holding = "test";
-				}				
+				for (TowerType t: player.availTowers) {
+					if (Tower.towerIcon(t).contains(x, y)) {
+						player.holding = t;
+					}
+				}
 			}
 		}
 	}
 	
 	@Override
 	public void keyPressed(int key, char c) {
-		if (key == Input.KEY_T) {
-			player.holding = "test";
+		if (player.holding == TowerType.NULL) {
+			for (TowerType t : player.availTowers) {
+				if (key == Tower.towerKey(t)) {
+					player.holding = t;
+				}
+			}
 		}
+		if (player.holding != TowerType.NULL && key == Input.KEY_ESCAPE) {
+			player.holding = TowerType.NULL;
+		}
+		
 		if (sendEarly && key == Input.KEY_P) {
 			currLevel.getNextWave();
+			player.removeAllTowers();
+			player.addBatchTowers(currLevel.currWave.updatePlayerTowers());
+
 			sendEarly = false;
 		}
 		if (this.textEvent!=null && (key == Input.KEY_ENTER || key == Input.KEY_SPACE) ) {

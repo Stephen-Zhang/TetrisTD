@@ -2,6 +2,7 @@ package enemies;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
@@ -92,5 +93,37 @@ public abstract class Enemy {
         g.fillRect(Float.parseFloat(Double.toString(x)), Float.parseFloat(Double.toString(y)), (float) (width), height);
         g.setColor(new Color(0, 255, 0));
         g.fillRect(Float.parseFloat(Double.toString(x)), Float.parseFloat(Double.toString(y)), (float) healthRemaining, height);
+	}
+
+	public void updateMovement() {
+		// TODO Auto-generated method stub
+		getDirection();
+		pos[0] += dir[0]*walkSpeed;
+		pos[1] += dir[1]*walkSpeed;
+	}
+
+	public void loseTowers(HashMap<Enemy, ArrayList<Tower>> remTfromE) {
+		// TODO Auto-generated method stub
+		//Leaving range of towers
+		for (Tower t : hittingT) {
+			if (!t.getRange().intersects(getHitbox()) ) {
+				//no longer in range, remove from hittingT, remove that tower's target on enemy
+				t.target = null;
+				
+				//If dictionary has entries already...
+				if (remTfromE.containsKey(this)) {
+					//add tower to curr ArrayList
+					ArrayList<Tower> temp = remTfromE.get(this);
+					temp.add(t);
+					remTfromE.put(this, temp);
+				} else {
+					//add entry to dictionary, add new arrayList to dictionary
+					ArrayList<Tower> temp = new ArrayList<Tower>();
+					temp.add(t);
+					remTfromE.put(this, temp);
+				}
+			}
+		}
+
 	}
 }

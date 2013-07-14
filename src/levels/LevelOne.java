@@ -3,6 +3,7 @@ package levels;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import towers.TowerType;
 import enemies.Enemy;
 import enemies.TestEnemy;
 
@@ -57,16 +58,17 @@ public class LevelOne extends Level {
 		tTwo.add(new Integer(6000));
 		
 		Wave testEmpty = new Wave(1, new Enemy[0], new ArrayList<Integer>(), 0, "Press Enter or Space to move onto the next text bubble. You may also " +
-				"click on the bubble itself to close it.");
+				"click on the bubble itself to close it.", new TowerType[]{});
 		
 		Wave wOne = new Wave(1, wOneEnemies, tOne, 0, "Welcome to Tetris TD Alpha Version .00! This game is a barely playable game but here is the first test level! " +
 				"Please build the first tower available to you and destroy your enemies! You may build this tower by clicking on the icon or pressing t " +
-				"on your keyboard. Good luck!");
+				"on your keyboard. Good luck!", new TowerType[]{TowerType.TEST_TOWER});
 		
 		Wave wTwo = new Wave(2, wTwoEnemies, tTwo, 10000, "Phew. You beat the first wave! but how are you going to deal with this next massive swarm of enemies? " +
-				"Hint: You should build some Area of Effect Towers that have now been enabled.");
+				"Hint: You should build some Area of Effect Towers that have now been enabled. But for now, I think I'm going to remove your ability to build towers. " +
+				"GOOD LUCK! ~(o_o)~", new TowerType[]{});
 		
-		currWave = testEmpty;
+		waves.add(testEmpty);
 		waves.add(wOne);
 		waves.add(wTwo);
 	}

@@ -34,4 +34,11 @@ public abstract class Projectile {
 		return new Circle(Float.parseFloat(Double.toString(pos[0])), Float.parseFloat(Double.toString(pos[1])), 8);
 	}
 
+
+	public void updateMovement() {
+		// TODO Auto-generated method stub
+		getDirection();
+		pos[0] += dir[0]*speed;
+		pos[1] += dir[1]*speed;
+	}
 }

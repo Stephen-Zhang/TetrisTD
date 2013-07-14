@@ -2,6 +2,7 @@ package levels;
 
 import java.util.ArrayList;
 
+import towers.TowerType;
 import enemies.Enemy;
 
 public class Wave {
@@ -11,13 +12,15 @@ public class Wave {
 	public ArrayList<Integer> timing;
 	public String textEvent;
 	public int startTime;
+	private TowerType[] availableTowers;
 	
-	public Wave(int id, Enemy[] e, ArrayList<Integer> timing, int startTime, String textEvent) {
+	public Wave(int id, Enemy[] e, ArrayList<Integer> timing, int startTime, String textEvent, TowerType[] availT) {
 		this.waveID = id;
 		this.enemies = e;
 		this.timing = timing;
 		this.startTime = startTime;
 		this.textEvent = textEvent;
+		this.availableTowers = availT;
 	}
 	
 	public Enemy getNextEnemy() {
@@ -60,5 +63,7 @@ public class Wave {
 		return retVal;
 	}
 	
-	
+	public TowerType[] updatePlayerTowers() {
+		return availableTowers;
+	}
 }

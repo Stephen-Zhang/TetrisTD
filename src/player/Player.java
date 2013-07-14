@@ -7,21 +7,21 @@ import java.util.HashMap;
 
 import towers.TestTower;
 import towers.Tower;
+import towers.TowerType;
 
 public class Player {
 	public int gold = 0;
 	public int lives;
-	public String holding = "none";
-	public HashMap<String, Point[]> towerShapes = new HashMap<String, Point[]>();
-	public HashMap<String, Point[]> towerRange = new HashMap<String, Point[]>();
+	public TowerType holding = TowerType.NULL;
+	public HashMap<TowerType, Point[]> towerShapes = new HashMap<TowerType, Point[]>();
+	public HashMap<TowerType, Point[]> towerRange = new HashMap<TowerType, Point[]>();
+	public ArrayList<TowerType> availTowers = new ArrayList<TowerType>();
 	
 	public int[] currMouseLoc = {0, 0};
 	
 	public Player(int life) {
 		lives = life;
 
-		towerShapes.put(TestTower.name, TestTower.shape.clone());
-		towerRange.put(TestTower.name, TestTower.range.clone());
 	}
 	
 	public Player(int life, int gold) {
@@ -30,16 +30,32 @@ public class Player {
 	}
 	
 	//Additional Stuff for players such as place-able towers, achievements, powerups, etc.
-	public void addTowerShape(Tower t) {
-		towerShapes.put(t.name, t.shape.clone());
-	}
-
-	public void addTowerRange(Tower t) {
-		towerRange.put(t.name, t.range.clone());
+	public void addTower(TowerType t) {
+		availTowers.add(t);
+		switch(t) {
+		case TEST_TOWER: 
+			towerShapes.put(t, TestTower.shape.clone());
+			towerRange.put(t, TestTower.range.clone());
+			break;
+		}
 	}
 	
-	public void removeTower(Tower t) {
-		
+	public void removeTower(TowerType t) {
+		availTowers.remove(t);
+		towerShapes.remove(t);
+		towerRange.remove(t);
+	}
+	
+	public void removeAllTowers() {
+		availTowers.clear();
+		towerShapes.clear();
+		towerRange.clear();
+	}
+	
+	public void addBatchTowers(TowerType[] tTypes) {
+		for (TowerType t: tTypes) {
+			addTower(t);
+		}
 	}
 
 	public Point[] getTowerShape() {
@@ -51,21 +67,22 @@ public class Player {
 	}
 	
 	public Tower makeNewTower() {
-		
-		if (holding == "test") {
+		switch(holding) {
+		case TEST_TOWER: 
 			double[] cent = {currMouseLoc[0], currMouseLoc[1]};
 			return new TestTower(cent);
+		case NULL: 
+			return null;
 		}
 		return null;
 	}
 
 	public int getCostOfTower() {
 		// TODO Auto-generated method stub
-
-		if (holding == "test") {
+		switch(holding) {
+		case TEST_TOWER:
 			return TestTower.cost;
 		}
-		
 		return 0;
 	}
 }
