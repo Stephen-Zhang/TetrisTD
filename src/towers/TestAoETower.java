@@ -101,10 +101,11 @@ public class TestAoETower extends Tower {
 			HashMap<Tower, ArrayList<Enemy>> addEtoT,
 			HashMap<Tower, ArrayList<Enemy>> remEfromT) {
 		// TODO Auto-generated method stub
-		System.out.println(this.target.size());
+		int targetsFound = this.target.size();
 		for (Enemy e: enemies) {
 			if (e.getHitbox().intersects(this.getRange()) && !this.target.contains(e)) {
-				if (this.target.size() < maxTargets) {
+				targetsFound++;
+				if (targetsFound <= maxTargets) {
 					//Add monster to tower, add tower to monster
 					ArrayList<Enemy> tempTargetAdd = (addEtoT.containsKey(this)) ? addEtoT.get(this) : new ArrayList<Enemy>();
 					tempTargetAdd.add(e);
@@ -114,6 +115,9 @@ public class TestAoETower extends Tower {
 					tempTaddE.add(this);
 					addTtoE.put(e, tempTaddE);
 				}
+				//Need a clever fix for this. right now its removing 1 tower and adding in a lot of towers in 1 step, causing it to exceed 5 max targets.
+				//Commenting out till further notice. TODO
+				/*
 				else {
 					Enemy furthestAway = this.target.get(0);
 					//Compare distance to furthest away
@@ -144,15 +148,14 @@ public class TestAoETower extends Tower {
 						break;
 					}
 				}
+				*/
 			}
 		}
 	}
 
 	@Override
 	public void fire(ArrayList<Projectile> addB) {
-		// TODO Auto-generated method stub
 		if (target.size() > 0) {
-			//Spawn bullet that flies at shortest path to target
 			if (canFire) {
 				for (Enemy e: this.target) {
 					addB.add(new testBullet(target.get(target.indexOf(e)), center));

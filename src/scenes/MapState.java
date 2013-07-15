@@ -61,7 +61,7 @@ public class MapState extends BasicGameState {
 			throws SlickException {
 		currMap = maps.get(0);
 
-		player = new Player(20, 100);
+		player = new Player(20, 200);
 		
 		currLevel = new LevelOne();
 		currLevel.getNextWave();		
@@ -228,19 +228,17 @@ public class MapState extends BasicGameState {
 				//Cleared wave, send early button becomes available
 				sendEarly = true;
 			}
+			
 
 			for (Enemy e : monsters ) {
 				if ( ( (int) e.pos[0] == (int) e.destination.x ) && ( (int) e.pos[1] == (int) e.destination.y ) ) {
 					//Reached waypoint, new waypoint
 					e.getNextDest();
+					if (e.success) {
+						removeE.add(e);
+					}
 				}
-				if (e.success) {
-					player.lives--;
-					removeE.add(e);
-				} else {
-					e.updateMovement();
-				}
-				
+				e.updateMovement();
 				e.loseTowers(remTfromE, remEfromT);
 			}
 			
@@ -251,7 +249,8 @@ public class MapState extends BasicGameState {
 				t.acquireTargets(monsters, addTtoE, remTfromE, addEtoT, remEfromT);
 
 				t.fire(addB);
-			}			
+				System.out.println(t.target.size());
+			}
 			
 			for ( Projectile p : bullets ) {
 				if (removeE.contains(p.target)) {
@@ -263,15 +262,18 @@ public class MapState extends BasicGameState {
 
 				if (p.getHitbox().intersects(p.target.getBulletBox()) ) {
 					//Bullet hit! drain some HP
-					p.target.currHealth -= p.damage;
-					if (p.target.currHealth <= 0) {
-						removeE.add(p.target);
-						for (Tower t : p.target.hittingT ) {
-							ArrayList<Enemy> remE = (remEfromT.containsKey(p.target)) ? remEfromT.get(p.target) : new ArrayList<Enemy>();
-							remE.add(p.target);
-							remEfromT.put(t, remE);
+					if (p.target.currHealth > 0) {
+						p.target.currHealth -= p.damage;
+						if (p.target.currHealth <= 0) {
+							if (!removeE.contains(p.target)) {
+								removeE.add(p.target);
+								for (Tower t : p.target.hittingT ) {
+									ArrayList<Enemy> remE = (remEfromT.containsKey(t)) ? remEfromT.get(t) : new ArrayList<Enemy>();
+									remE.add(p.target);
+									remEfromT.put(t, remE);
+								}
+							}
 						}
-						player.gold += p.target.bounty;
 					}
 					removeB.add(p);
 				}
@@ -282,8 +284,17 @@ public class MapState extends BasicGameState {
 				bullets.remove(p);
 			}
 			
+			if (removeE.size() > 0) {
+				System.out.println(removeE.size());
+			}
 			for (Enemy e : removeE) {
 				monsters.remove(e);
+				
+				if (e.success) {
+					player.lives--;
+				} else {
+					player.gold += e.bounty;
+				}
 			}
 
 			//Remove all towers that have left range on enemy
