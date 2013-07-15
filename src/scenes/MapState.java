@@ -241,14 +241,14 @@ public class MapState extends BasicGameState {
 					e.updateMovement();
 				}
 				
-				e.loseTowers(remTfromE);				
+				e.loseTowers(remTfromE, remEfromT);
 			}
 			
 			for (Tower t: towers) {
 				//Check if tower needs to check firing
 				t.updateTime(delta);
 
-				t.acquireTargets(monsters, addTtoE, remTfromE);
+				t.acquireTargets(monsters, addTtoE, remTfromE, addEtoT, remEfromT);
 
 				t.fire(addB);
 			}			
@@ -264,10 +264,12 @@ public class MapState extends BasicGameState {
 				if (p.getHitbox().intersects(p.target.getBulletBox()) ) {
 					//Bullet hit! drain some HP
 					p.target.currHealth -= p.damage;
-					if (p.target.currHealth <= 0) {						
+					if (p.target.currHealth <= 0) {
 						removeE.add(p.target);
 						for (Tower t : p.target.hittingT ) {
-							t.target = null;
+							ArrayList<Enemy> remE = (remEfromT.containsKey(p.target)) ? remEfromT.get(p.target) : new ArrayList<Enemy>();
+							remE.add(p.target);
+							remEfromT.put(t, remE);
 						}
 						player.gold += p.target.bounty;
 					}
@@ -291,6 +293,13 @@ public class MapState extends BasicGameState {
 				}
 			}
 
+			//Remove all towers that have left range on enemy
+			for (Tower t: remEfromT.keySet()) {
+				for (Enemy e: remEfromT.get(t)) {
+					t.target.remove(e);
+				}
+			}
+
 			//Add new bullets
 			for (Projectile p : addB) {
 				bullets.add(p);
@@ -308,6 +317,12 @@ public class MapState extends BasicGameState {
 			for (Enemy e : addTtoE.keySet()) {
 				for (Tower t : addTtoE.get(e)) {
 					e.hittingT.add(t);
+				}
+			}
+
+			for (Tower t: addEtoT.keySet()) {
+				for (Enemy e: addEtoT.get(t)) {
+					t.target.add(e);
 				}
 			}
 			

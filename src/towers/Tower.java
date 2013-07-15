@@ -19,7 +19,6 @@ public abstract class Tower {
 	public double fireRate;
 	public boolean canFire;
 	public int cooldown;
-	public abstract Projectile fireBullet();
 
 	protected double[] center = new double[2];
 	
@@ -29,7 +28,7 @@ public abstract class Tower {
 	protected static Point[] shape;
 	protected Shape realShape;
 	
-	public Enemy target;
+	public ArrayList<Enemy> target = new ArrayList<Enemy>();
 	
 	public abstract String getName();
 
@@ -64,7 +63,10 @@ public abstract class Tower {
 	public static void drawTowerIcon(TowerType t) throws SlickException {
 		switch(t) {
 		case TEST_TOWER:
-			TestTower.drawIcon(TestTower.iconLoc[0], TestTower.iconLoc[1]);
+			Tower.drawIcon(TestTower.iconLoc[0], TestTower.iconLoc[1]);
+			break;
+		case TEST_AOE_TOWER:
+			Tower.drawIcon(TestAoETower.iconLoc[0], TestAoETower.iconLoc[1]);
 			break;
 		}
 	}
@@ -73,6 +75,8 @@ public abstract class Tower {
 		switch(t) {
 		case TEST_TOWER:
 			return new Rectangle(TestTower.iconLoc[0], TestTower.iconLoc[1], 32, 32);
+		case TEST_AOE_TOWER:
+			return new Rectangle(TestAoETower.iconLoc[0], TestAoETower.iconLoc[1], 32, 32);
 		}
 		return null;
 	}
@@ -81,11 +85,13 @@ public abstract class Tower {
 		switch(t) {
 		case TEST_TOWER:
 			return TestTower.key;
+		case TEST_AOE_TOWER:
+			return TestAoETower.key;
 		}
 		return -1;
 	}
 	
-	public abstract void acquireTargets(ArrayList<Enemy> enemies, HashMap<Enemy, ArrayList<Tower>> addTtoE, HashMap<Enemy, ArrayList<Tower>> remTfromE);
+	public abstract void acquireTargets(ArrayList<Enemy> enemies, HashMap<Enemy, ArrayList<Tower>> addTtoE, HashMap<Enemy, ArrayList<Tower>> remTfromE, HashMap<Tower, ArrayList<Enemy>> addEtoT, HashMap<Tower, ArrayList<Enemy>> remEfromT);
 
 	public abstract void fire(ArrayList<Projectile> addB);
 

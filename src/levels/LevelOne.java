@@ -64,9 +64,8 @@ public class LevelOne extends Level {
 				"Please build the first tower available to you and destroy your enemies! You may build this tower by clicking on the icon or pressing t " +
 				"on your keyboard. Good luck!", new TowerType[]{TowerType.TEST_TOWER});
 		
-		Wave wTwo = new Wave(2, wTwoEnemies, tTwo, 10000, "Phew. You beat the first wave! but how are you going to deal with this next massive swarm of enemies? " +
-				"Hint: You should build some Area of Effect Towers that have now been enabled. But for now, I think I'm going to remove your ability to build towers. " +
-				"GOOD LUCK! ~(o_o)~", new TowerType[]{});
+		Wave wTwo = new Wave(2, wTwoEnemies, tTwo, 20000, "Phew. You beat the first wave! but how are you going to deal with this next massive swarm of enemies? " +
+				"Hint: You should build some Area of Effect Towers that have now been enabled. I've disabled the original single shot tower. Good luck! ", new TowerType[]{TowerType.TEST_AOE_TOWER});
 		
 		waves.add(testEmpty);
 		waves.add(wOne);

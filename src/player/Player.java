@@ -1,10 +1,10 @@
 package player;
 
 import java.awt.Point;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import towers.TestAoETower;
 import towers.TestTower;
 import towers.Tower;
 import towers.TowerType;
@@ -37,6 +37,10 @@ public class Player {
 			towerShapes.put(t, TestTower.shape.clone());
 			towerRange.put(t, TestTower.range.clone());
 			break;
+		case TEST_AOE_TOWER:
+			towerShapes.put(t, TestAoETower.shape.clone());
+			towerRange.put(t, TestAoETower.range.clone());
+			break;
 		}
 	}
 	
@@ -67,10 +71,12 @@ public class Player {
 	}
 	
 	public Tower makeNewTower() {
+		double[] cent = {currMouseLoc[0], currMouseLoc[1]};
 		switch(holding) {
 		case TEST_TOWER: 
-			double[] cent = {currMouseLoc[0], currMouseLoc[1]};
 			return new TestTower(cent);
+		case TEST_AOE_TOWER:
+			return new TestAoETower(cent);
 		case NULL: 
 			return null;
 		}
@@ -82,6 +88,8 @@ public class Player {
 		switch(holding) {
 		case TEST_TOWER:
 			return TestTower.cost;
+		case TEST_AOE_TOWER:
+			return TestAoETower.cost;
 		}
 		return 0;
 	}

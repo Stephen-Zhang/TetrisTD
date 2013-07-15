@@ -102,14 +102,16 @@ public abstract class Enemy {
 		pos[1] += dir[1]*walkSpeed;
 	}
 
-	public void loseTowers(HashMap<Enemy, ArrayList<Tower>> remTfromE) {
+	public void loseTowers(HashMap<Enemy, ArrayList<Tower>> remTfromE, HashMap<Tower, ArrayList<Enemy>> remEfromT) {
 		// TODO Auto-generated method stub
 		//Leaving range of towers
 		for (Tower t : hittingT) {
 			if (!t.getRange().intersects(getHitbox()) ) {
 				//no longer in range, remove from hittingT, remove that tower's target on enemy
-				t.target = null;
-				
+				ArrayList<Enemy> EremT = (remEfromT.containsKey(t)) ? remEfromT.get(t) : new ArrayList<Enemy>();
+				EremT.add(this);
+				remEfromT.put(t, EremT);
+								
 				//If dictionary has entries already...
 				if (remTfromE.containsKey(this)) {
 					//add tower to curr ArrayList

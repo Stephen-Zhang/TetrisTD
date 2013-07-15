@@ -51,9 +51,7 @@ public class TestTower extends Tower {
 	public static int[] iconLoc = {900, 600};
 	
 	public static int key = Input.KEY_T;
-	
-	private ArrayList<Enemy> removeThese = new ArrayList<Enemy>();
-	
+		
 	public TestTower(double[] cent) {
 		fireRate = .01;
 		
@@ -70,12 +68,6 @@ public class TestTower extends Tower {
 
 	public Shape getRealShape() {
 		return realShape;
-	}
-
-	@Override
-	public Projectile fireBullet() {
-		// TODO Auto-generated method stub
-		return new testBullet(target, center);
 	}
 
 	@Override
@@ -109,59 +101,46 @@ public class TestTower extends Tower {
 	}
 
 	@Override
-	public void acquireTargets(ArrayList<Enemy> enemies, HashMap<Enemy, ArrayList<Tower>> addTtoE, HashMap<Enemy, ArrayList<Tower>> remTfromE) {
+	public void acquireTargets(ArrayList<Enemy> enemies, HashMap<Enemy, ArrayList<Tower>> addTtoE, HashMap<Enemy, ArrayList<Tower>> remTfromE, HashMap<Tower, ArrayList<Enemy>> addEtoT, HashMap<Tower, ArrayList<Enemy>> remEfromT) {
 		// TODO Auto-generated method stub
 		for (Enemy e : enemies) {
 			if (this.getRange().intersects(e.getHitbox()) ) {
 				//In Range, determine if has target
-				if (this.target == null) {
-					this.target = e;
+				if (this.target.size() == 0) {
+
+					//if target exists, add target to addEtoT
+					ArrayList<Enemy> tempTargetAdd = (addEtoT.containsKey(this)) ? addEtoT.get(this) : new ArrayList<Enemy>();
+					tempTargetAdd.add(e);
+					addEtoT.put(this, tempTargetAdd);
 					
-					//if addTtoE has more than 1 target already...
-					if (addTtoE.containsKey(e)) {
-						//add tower to curr ArrayList
-						ArrayList<Tower> temp = addTtoE.get(e);
-						temp.add(this);
-						addTtoE.put(e, temp);
-					} else {
-						//add entry to dictionary, add new arrayList to dictionary
-						ArrayList<Tower> temp = new ArrayList<Tower>();
-						temp.add(this);
-						addTtoE.put(e, temp);
-					}
+					ArrayList<Tower> tempTaddE = (addTtoE.containsKey(e)) ? addTtoE.get(e) : new ArrayList<Tower>();
+					tempTaddE.add(this);
+					addTtoE.put(e, tempTaddE);
 				}
 				else {
 					//If has target, determine if curr Target is ahead of other possible targets
-					if (e.distToGoal() < this.target.distToGoal()) {
+					if (e.distToGoal() < this.target.get(0).distToGoal()) {
 						//new target acquired
 						
 						//if t's target is leaving multiple targets...
-						if (remTfromE.containsKey(this.target)) {
-							//add tower to curr ArrayList
-							ArrayList<Tower> temp = remTfromE.get(this.target);
-							temp.add(this);
-							remTfromE.put(this.target, temp);
-						} else {
-							//add entry to dictionary, add new arrayList to dictionary
-							ArrayList<Tower> temp = new ArrayList<Tower>();
-							temp.add(this);
-							remTfromE.put(this.target, temp);
-						}
-						
-						this.target = e;
+						ArrayList<Tower> tempTremE = (remTfromE.containsKey(this)) ? remTfromE.get(this) : new ArrayList<Tower>();
+						tempTremE.add(this);
+						remTfromE.put(this.target.get(0), tempTremE);
 
+						//Remove enemy from Tower
+						ArrayList<Enemy> tempEremT = (remEfromT.containsKey(this)) ? remEfromT.get(this) : new ArrayList<Enemy>();
+						tempEremT.add(this.target.get(0));
+						remEfromT.put(this, tempEremT);
+						
+						ArrayList<Enemy> tempTargetAdd = (addEtoT.containsKey(this)) ? addEtoT.get(this) : new ArrayList<Enemy>();
+						tempTargetAdd.add(e);
+						addEtoT.put(this, tempTargetAdd);
+						
 						//if addTtoE has more than 1 target already...
-						if (addTtoE.containsKey(e)) {
-							//add tower to curr ArrayList
-							ArrayList<Tower> temp = addTtoE.get(e);
-							temp.add(this);
-							addTtoE.put(e, temp);
-						} else {
-							//add entry to dictionary, add new arrayList to dictionary
-							ArrayList<Tower> temp = new ArrayList<Tower>();
-							temp.add(this);
-							addTtoE.put(e, temp);
-						}
+						ArrayList<Tower> tempTaddE = (addTtoE.containsKey(this)) ? addTtoE.get(this) : new ArrayList<Tower>();
+						tempTaddE.add(this);
+						addTtoE.put(this.target.get(0), tempTaddE);					
+						
 					}
 				}
 			}
@@ -172,10 +151,10 @@ public class TestTower extends Tower {
 	public void fire(ArrayList<Projectile> addB) {
 		// TODO Auto-generated method stub
 		//If target is acquired, attack it
-		if (target != null) {
+		if (target.size() > 0) {
 			//Spawn bullet that flies at shortest path to target
 			if (canFire) {
-				addB.add(fireBullet());
+				addB.add(new testBullet(target.get(0), center));
 				canFire = false;
 			}
 		}
