@@ -1,26 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="32" height="24" tilewidth="32" tileheight="32">
- <tileset firstgid="1" name="LevelOne" tilewidth="32" tileheight="32">
-  <image source="LevelOne.png" width="512" height="384"/>
-  <tile id="0">
-   <properties>
-    <property name="buildable" value="yes"/>
-   </properties>
-  </tile>
-  <tile id="48">
-   <properties>
-    <property name="buildable" value="no"/>
-   </properties>
-  </tile>
-  <tile id="186">
-   <properties>
-    <property name="buildable" value="no"/>
-   </properties>
-  </tile>
+ <tileset firstgid="1" name="Grass" tilewidth="32" tileheight="32">
+  <image source="../../../../newTTD/TetrisTD-New-android/assets/levels/tilesets/Grass Tiles.png" width="192" height="64"/>
+ </tileset>
+ <tileset firstgid="13" name="Stone" tilewidth="32" tileheight="32">
+  <image source="../../../../newTTD/TetrisTD-New-android/assets/levels/tilesets/stone.jpg" width="3072" height="3072"/>
  </tileset>
  <layer name="Tile Layer 1" width="32" height="24">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC+3SsQkAMBQCUTNS5v/LZQGLQEBTXHH1Q3AkTbkVCB8/5W9T2m/vx7/33V+a+/H7/mvN/7vw8em/DmdTfsYADAAA
+   H4sIAAAAAAAAC0vjZmBIG2DMyEB7PGr/yLGfBQumt/0D7f9R+4eO/ehpdSD9P2r/wNtPDTyQ6R8bHrV/1P5RPPgwAI7DxMsADAAA
   </data>
  </layer>
 </map>

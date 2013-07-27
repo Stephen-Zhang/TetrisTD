@@ -68,6 +68,8 @@ public abstract class Tower {
 		case TEST_AOE_TOWER:
 			Tower.drawIcon(TestAoETower.iconLoc[0], TestAoETower.iconLoc[1]);
 			break;
+		case NULL:
+			break;
 		}
 	}
 	
@@ -77,6 +79,8 @@ public abstract class Tower {
 			return new Rectangle(TestTower.iconLoc[0], TestTower.iconLoc[1], 32, 32);
 		case TEST_AOE_TOWER:
 			return new Rectangle(TestAoETower.iconLoc[0], TestAoETower.iconLoc[1], 32, 32);
+		case NULL:
+			return null;
 		}
 		return null;
 	}
@@ -87,6 +91,8 @@ public abstract class Tower {
 			return TestTower.key;
 		case TEST_AOE_TOWER:
 			return TestAoETower.key;
+		case NULL:
+			return -1;
 		}
 		return -1;
 	}

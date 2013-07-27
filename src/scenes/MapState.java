@@ -19,7 +19,6 @@ import org.newdawn.slick.tiled.TiledMap;
 
 import player.Player;
 import projectiles.Projectile;
-import towers.TestTower;
 import towers.Tower;
 import towers.TowerType;
 import enemies.Enemy;

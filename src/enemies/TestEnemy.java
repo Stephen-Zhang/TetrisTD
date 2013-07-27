@@ -23,5 +23,4 @@ public class TestEnemy extends Enemy {
 		}
 	}
 	
-	
 }

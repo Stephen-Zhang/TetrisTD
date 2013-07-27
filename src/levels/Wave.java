@@ -6,7 +6,7 @@ import towers.TowerType;
 import enemies.Enemy;
 
 public class Wave {
-	private int waveID;
+//	private int waveID;
 	private int enemyCtr = 0;
 	protected Enemy[] enemies;
 	public ArrayList<Integer> timing;
@@ -15,7 +15,7 @@ public class Wave {
 	private TowerType[] availableTowers;
 	
 	public Wave(int id, Enemy[] e, ArrayList<Integer> timing, int startTime, String textEvent, TowerType[] availT) {
-		this.waveID = id;
+//		this.waveID = id;
 		this.enemies = e;
 		this.timing = timing;
 		this.startTime = startTime;

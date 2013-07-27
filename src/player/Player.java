@@ -41,6 +41,8 @@ public class Player {
 			towerShapes.put(t, TestAoETower.shape.clone());
 			towerRange.put(t, TestAoETower.range.clone());
 			break;
+		case NULL:
+			break;
 		}
 	}
 	
@@ -90,6 +92,8 @@ public class Player {
 			return TestTower.cost;
 		case TEST_AOE_TOWER:
 			return TestAoETower.cost;
+		case NULL:
+			return 0;
 		}
 		return 0;
 	}

@@ -3,6 +3,8 @@ package levels;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import org.newdawn.slick.tiled.TiledMap;
+
 public abstract class Level {
 	protected ArrayList<Wave> waves = new ArrayList<Wave>();
 	public Wave currWave;
